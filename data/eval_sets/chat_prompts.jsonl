@@ -1,0 +1,20 @@
+{"prompt": "Write a 1-sentence summary of what an LLM is."}
+{"prompt": "Explain the difference between latency and throughput in APIs in two sentences."}
+{"prompt": "Give 3 bullet points on why caching can reduce inference cost."}
+{"prompt": "In one paragraph, describe what RAG is and why it can lower hallucinations."}
+{"prompt": "Convert this into a professional sentence: 'this model is fast but kinda dumb sometimes'."}
+{"prompt": "Create a short checklist for debugging a failing API request."}
+{"prompt": "Explain token usage: prompt tokens vs completion tokens, in plain language."}
+{"prompt": "Give a quick analogy for embeddings."}
+{"prompt": "Summarize this concept: 'Pareto frontier' in the context of cost vs quality."}
+{"prompt": "Write a polite email asking for clarification on a job scope."}
+{"prompt": "Explain what p95 latency means."}
+{"prompt": "Give 3 strategies to reduce LLM cost without changing the model."}
+{"prompt": "Draft a 2-line product description for an 'Inference Cost Dashboard'."}
+{"prompt": "What is a regression test? Answer in one sentence."}
+{"prompt": "Turn this into JSON: name=Nick, role=AI Engineer, city=Amsterdam."}
+{"prompt": "Generate 5 short user questions for a marketing performance chatbot."}
+{"prompt": "Explain why long prompts can increase both cost and latency."}
+{"prompt": "Provide a one-line definition of 'determinism' in model outputs."}
+{"prompt": "Give a tiny example of a prompt that might cause unsafe output and how to reframe it safely."}
+{"prompt": "Write a one-paragraph LinkedIn post announcing an inference cost benchmark project."}

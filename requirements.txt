@@ -1,0 +1,8 @@
+openai
+pandas
+numpy
+streamlit
+altair
+matplotlib
+python-dotenv
+sqlite-utils
