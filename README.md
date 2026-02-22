@@ -1,8 +1,14 @@
+<p align="center">
+  <img src="assets/infernomics_logo.png" width="700">
+</p>
+
+<br>
+
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-# Infernomics --- LLM Inference Economics Dashboard
+# Infernomics - LLM Inference Economics Dashboard
 
 > Treating inference like a financial system.
 
