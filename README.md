@@ -7,8 +7,11 @@
 ## Key Findings
 
 • Increasing top_k improves quality but shows diminishing returns per euro.
+
 • Prompt caching reduces billed cost near-linearly with hit rate.
+
 • Evaluation overhead is measurable and must be accounted for.
+
 • RAG shifts the cost–latency frontier but is not strictly dominant.
 
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
