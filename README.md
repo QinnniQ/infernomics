@@ -66,7 +66,7 @@ Very few rigorously measure:
 
 Infernomics reframes inference as an economic system.
 
-Deployment decisions become cost–quality–latency optimization under constraints — not guesswork.
+Deployment decisions become cost–quality–latency optimization under constraints so as to eliminate guesswork.
 
 ------------------------------------------------------------------------
 
