@@ -50,6 +50,26 @@ must be optimized together --- not in isolation.
 
 ------------------------------------------------------------------------
 
+## Why This Matters
+
+Most LLM projects optimize for model quality.
+
+Some measure latency.
+
+Very few rigorously measure:
+
+- Cost per request
+- Cache efficiency
+- Retrieval depth tradeoffs
+- Evaluation overhead
+- Quality-per-euro
+
+Infernomics reframes inference as an economic system.
+
+Deployment decisions become cost–quality–latency optimization under constraints — not guesswork.
+
+------------------------------------------------------------------------
+
 ## Key Capabilities
 
 ### 1. Chat Sweep Benchmarking
