@@ -20,7 +20,7 @@ dashboard.
 
 ------------------------------------------------------------------------
 
-## 🚀 What This Project Demonstrates
+## What This Project Demonstrates
 
 This project showcases applied AI engineering skills in:
 
@@ -38,7 +38,7 @@ must be optimized together --- not in isolation.
 
 ------------------------------------------------------------------------
 
-## 📊 Key Capabilities
+## Key Capabilities
 
 ### 1. Chat Sweep Benchmarking
 
@@ -71,7 +71,7 @@ must be optimized together --- not in isolation.
 
 ------------------------------------------------------------------------
 
-## 🧠 Example Findings
+## Example Findings
 
 From sample runs:
 
@@ -85,7 +85,7 @@ From sample runs:
 
 ------------------------------------------------------------------------
 
-## 🛠 Tech Stack
+## Tech Stack
 
 -   Python (venv-based workflow)
 -   OpenAI API (chat + embeddings)
@@ -96,7 +96,7 @@ From sample runs:
 
 ------------------------------------------------------------------------
 
-## 📁 Project Structure
+## Project Structure
 
     infernomics/
     ├── assets/                  # Logo + screenshots
@@ -111,7 +111,7 @@ From sample runs:
 
 ------------------------------------------------------------------------
 
-## ⚙️ Quickstart
+## Quickstart
 
 ### 1. Create environment
 
@@ -151,7 +151,7 @@ streamlit run streamlit_app.py
 
 ------------------------------------------------------------------------
 
-## 📈 Why This Matters
+## Why This Matters
 
 Most LLM projects focus on model quality.
 
@@ -168,7 +168,7 @@ under real-world constraints.
 
 ------------------------------------------------------------------------
 
-## 👤 Author
+## Author
 
 Nicholai Gay --- AI Engineering (LLM Systems & Applied Optimization)
 
