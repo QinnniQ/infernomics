@@ -40,7 +40,7 @@ def main() -> None:
     db = ResultsDB(Path("outputs") / "results.sqlite")
     db.insert_run(RunInfo(run_id=run_id, created_at_utc=created_at, model=model, meta={"workload": "chat"}))
 
-    client = OpenAI()  # reads OPENAI_API_KEY from env :contentReference[oaicite:3]{index=3}
+    client = OpenAI()  # reads OPENAI_API_KEY from the environment
 
     totals = {
         "n": 0,
@@ -133,7 +133,7 @@ def main() -> None:
 
     console.print(f"\nSaved per-item JSON to: {out_dir}")
     console.print("Saved SQLite to: outputs/results.sqlite")
-    console.print("\nNOTE: € estimate is 0 until you fill pricing.py for your chosen model.")
+    console.print("\nNOTE: Cost estimates use illustrative EUR rates in src/icp/pricing.py.")
 
 if __name__ == "__main__":
     main()

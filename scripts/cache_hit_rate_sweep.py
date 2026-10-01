@@ -83,21 +83,22 @@ def run_workload_with_target_hit_rate(
         tt = int(r.total_tokens or (pt + ct))
         prime_billed_tokens += tt
         prime_lat_ms.append(float(r.latency_ms or 0.0))
-        cache.set(
-            key,
-            {
-                "model": model,
-                "max_output_tokens": max_output_tokens,
-                "prompt": prompt,
-                "output_text": r.output_text,
-                "prompt_tokens": r.prompt_tokens,
-                "completion_tokens": r.completion_tokens,
-                "total_tokens": r.total_tokens,
-                "cost_estimate": r.cost_estimate,
-                "latency_ms": r.latency_ms,
-                "cached_at_utc": datetime.now(timezone.utc).isoformat(),
-            },
-        )
+        if not r.error:
+            cache.set(
+                key,
+                {
+                    "model": model,
+                    "max_output_tokens": max_output_tokens,
+                    "prompt": prompt,
+                    "output_text": r.output_text,
+                    "prompt_tokens": r.prompt_tokens,
+                    "completion_tokens": r.completion_tokens,
+                    "total_tokens": r.total_tokens,
+                    "cost_estimate": r.cost_estimate,
+                    "latency_ms": r.latency_ms,
+                    "cached_at_utc": datetime.now(timezone.utc).isoformat(),
+                },
+            )
 
     # ---- Measured pass (controlled hit rate) ----
     totals = {
@@ -139,22 +140,23 @@ def run_workload_with_target_hit_rate(
         totals["billed_total_tokens"] += tt
         totals["billed_cost"] += float(r.cost_estimate or 0.0)
 
-        # update cache (not strictly needed)
-        cache.set(
-            key,
-            {
-                "model": model,
-                "max_output_tokens": max_output_tokens,
-                "prompt": prompt,
-                "output_text": r.output_text,
-                "prompt_tokens": r.prompt_tokens,
-                "completion_tokens": r.completion_tokens,
-                "total_tokens": r.total_tokens,
-                "cost_estimate": r.cost_estimate,
-                "latency_ms": r.latency_ms,
-                "cached_at_utc": datetime.now(timezone.utc).isoformat(),
-            },
-        )
+        # A failed call must not poison the cache.
+        if not r.error:
+            cache.set(
+                key,
+                {
+                    "model": model,
+                    "max_output_tokens": max_output_tokens,
+                    "prompt": prompt,
+                    "output_text": r.output_text,
+                    "prompt_tokens": r.prompt_tokens,
+                    "completion_tokens": r.completion_tokens,
+                    "total_tokens": r.total_tokens,
+                    "cost_estimate": r.cost_estimate,
+                    "latency_ms": r.latency_ms,
+                    "cached_at_utc": datetime.now(timezone.utc).isoformat(),
+                },
+            )
 
     avg_ms = sum(totals["lat_ms"]) / max(1, totals["n"])
     hit_rate_real = totals["hits"] / max(1, totals["n"])

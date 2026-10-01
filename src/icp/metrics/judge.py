@@ -132,12 +132,31 @@ def judge_answer(
                 raw={"output_text": out_text},
             )
 
-        # Clamp + coerce
-        q = int(obj.get("quality_0_5", 0))
-        g = int(obj.get("grounded_0_5", 0))
+        if (
+            type(obj.get("quality_0_5")) is not int
+            or type(obj.get("grounded_0_5")) is not int
+            or type(obj.get("follows_instructions")) is not bool
+        ):
+            return JudgeResult(
+                quality_0_5=0,
+                grounded_0_5=0,
+                follows_instructions=False,
+                notes="Judge schema invalid",
+                judge_prompt_tokens=in_tok,
+                judge_completion_tokens=out_tok,
+                judge_total_tokens=tot_tok,
+                judge_cost_estimate=judge_cost,
+                judge_latency_ms=latency_ms,
+                error="judge_invalid_schema",
+                raw={"output_text": out_text},
+            )
+
+        # Clamp scores outside the rubric range.
+        q = obj["quality_0_5"]
+        g = obj["grounded_0_5"]
         q = max(0, min(5, q))
         g = max(0, min(5, g))
-        fi = bool(obj.get("follows_instructions", False))
+        fi = obj["follows_instructions"]
         notes = str(obj.get("notes", ""))[:200]
 
         raw = resp.model_dump() if hasattr(resp, "model_dump") else {"output_text": out_text}

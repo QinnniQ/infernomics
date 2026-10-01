@@ -88,22 +88,23 @@ def run_pass(
         totals["billed_total_tokens"] += tt
         totals["billed_cost"] += float(r.cost_estimate or 0.0)
 
-        # Save to cache (even on cold pass)
-        cache.set(
-            key,
-            {
-                "model": model,
-                "max_output_tokens": max_output_tokens,
-                "prompt": prompt,
-                "output_text": r.output_text,
-                "prompt_tokens": r.prompt_tokens,
-                "completion_tokens": r.completion_tokens,
-                "total_tokens": r.total_tokens,
-                "cost_estimate": r.cost_estimate,
-                "latency_ms": r.latency_ms,  # model-side latency (informational)
-                "cached_at_utc": datetime.now(timezone.utc).isoformat(),
-            },
-        )
+        # Never turn a failed API call into a warm cache hit.
+        if not r.error:
+            cache.set(
+                key,
+                {
+                    "model": model,
+                    "max_output_tokens": max_output_tokens,
+                    "prompt": prompt,
+                    "output_text": r.output_text,
+                    "prompt_tokens": r.prompt_tokens,
+                    "completion_tokens": r.completion_tokens,
+                    "total_tokens": r.total_tokens,
+                    "cost_estimate": r.cost_estimate,
+                    "latency_ms": r.latency_ms,  # model-side latency (informational)
+                    "cached_at_utc": datetime.now(timezone.utc).isoformat(),
+                },
+            )
 
     avg_ms = sum(totals["lat_ms"]) / max(1, totals["n"])
     hit_rate = totals["hits"] / max(1, totals["n"])

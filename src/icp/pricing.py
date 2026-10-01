@@ -10,26 +10,28 @@ class PricePer1M:
 class EmbedPricePer1M:
     input: float  # embeddings bill input tokens only
 
-# LLM prices (per 1M tokens) in your reporting currency (EUR in your case).
-# You already used approx EUR values for 4o-mini earlier; keep consistent.
+# Illustrative EUR rates per 1M tokens. Update these assumptions before a new run.
 DEFAULT_LLM_PRICE_TABLE = {
     "gpt-4o-mini": PricePer1M(prompt=0.14, completion=0.56),
 }
 
-# Embedding prices (per 1M tokens) in your reporting currency.
-# If you're using EUR, convert from USD once and keep consistent.
+# Illustrative embedding rate per 1M input tokens in EUR.
 DEFAULT_EMBED_PRICE_TABLE = {
-    "text-embedding-3-small": EmbedPricePer1M(input=0.0186),  # example: $0.02 * 0.93
+    "text-embedding-3-small": EmbedPricePer1M(input=0.0186),
 }
 
 def estimate_llm_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
+    if prompt_tokens < 0 or completion_tokens < 0:
+        raise ValueError("Token counts must be non-negative")
     price = DEFAULT_LLM_PRICE_TABLE.get(model)
     if price is None:
-        return 0.0
+        raise ValueError(f"No LLM price configured for {model}")
     return (prompt_tokens / 1_000_000) * price.prompt + (completion_tokens / 1_000_000) * price.completion
 
 def estimate_embed_cost(embed_model: str, input_tokens: int) -> float:
+    if input_tokens < 0:
+        raise ValueError("Token counts must be non-negative")
     price = DEFAULT_EMBED_PRICE_TABLE.get(embed_model)
     if price is None:
-        return 0.0
+        raise ValueError(f"No embedding price configured for {embed_model}")
     return (input_tokens / 1_000_000) * price.input
