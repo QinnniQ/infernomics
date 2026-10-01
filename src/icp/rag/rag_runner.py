@@ -21,6 +21,7 @@ class RagResult:
     latency_ms: float
     error: Optional[str]
     raw: Dict[str, Any]
+    rag_prompt: Optional[str] = None
 
 def _build_rag_prompt(question: str, contexts: List[dict]) -> str:
     # Simple “citations”: model must cite [doc_id]
@@ -106,6 +107,7 @@ def run_one_rag(
             latency_ms=latency_ms,
             error=None,
             raw=raw,
+            rag_prompt=prompt,
         )
     except Exception as e:
         latency_ms = (time.perf_counter() - t0) * 1000.0

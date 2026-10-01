@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from openai import OpenAI
-from .pricing import estimate_cost
+from .pricing import estimate_llm_cost
 
 @dataclass
 class ChatResult:
@@ -28,7 +28,7 @@ def run_one_chat(client: OpenAI, model: str, prompt: str, max_output_tokens: int
         )
         latency_ms = (time.perf_counter() - t0) * 1000.0
 
-        # The SDK provides output_text convenience in examples. :contentReference[oaicite:2]{index=2}
+        # The SDK exposes output_text as a convenience property.
         output_text = getattr(resp, "output_text", None)
 
         usage = getattr(resp, "usage", None)
@@ -36,7 +36,7 @@ def run_one_chat(client: OpenAI, model: str, prompt: str, max_output_tokens: int
         completion_tokens = getattr(usage, "output_tokens", None) if usage else None
         total_tokens = getattr(usage, "total_tokens", None) if usage else None
 
-        cost = estimate_cost(
+        cost = estimate_llm_cost(
             model=model,
             prompt_tokens=int(prompt_tokens or 0),
             completion_tokens=int(completion_tokens or 0),
