@@ -32,6 +32,16 @@ The [quality plot](assets/plot1.png) shows judged quality and groundedness risin
 
 These observations come from a tiny example workload, model-judged scores, and hard-coded illustrative EUR rates. They do not establish statistical significance, customer savings, or a production service-level target. To obtain current figures, rerun the experiments with a suitable evaluation set, record model/prices/date, and retain the generated CSVs.
 
+### Reproducible offline example
+
+For a quick inspection without an API key, the repository includes a [six-request synthetic fixture](examples/sample_topk_fixture.json), its [generated CSV summary](examples/sample_topk_summary.csv), and a [cost chart](examples/sample_topk_cost.svg). Regenerate both outputs from the repository root with:
+
+```bash
+python scripts/reproduce_sample.py
+```
+
+The script uses the same `summarize_topk` and pricing functions as the experiment pipeline. It requires only the Python standard library. The fixture is dated **2026-10-07**, names `gpt-4o-mini` and `text-embedding-3-small`, and uses the **illustrative fixed EUR rates** in `src/icp/pricing.py`. All token counts, latencies, and judge scores in this fixture are invented to exercise the calculation. The CSV and chart reproduce the arithmetic; they are not measured API results and do not recreate the older screenshots above.
+
 ## Architecture
 
 ```mermaid
