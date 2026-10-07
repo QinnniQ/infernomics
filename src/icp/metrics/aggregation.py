@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-from icp.metrics.judge import JudgeResult
-from icp.rag.rag_runner import RagResult
+if TYPE_CHECKING:
+    from icp.metrics.judge import JudgeResult
+    from icp.rag.rag_runner import RagResult
 
 
 def percentile(values: Sequence[float], p: float) -> float:
