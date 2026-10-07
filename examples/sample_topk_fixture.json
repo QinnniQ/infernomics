@@ -1,0 +1,15 @@
+{
+  "kind": "synthetic_offline_fixture",
+  "prepared_utc": "2026-10-07",
+  "model": "gpt-4o-mini",
+  "embedding_model": "text-embedding-3-small",
+  "pricing": "Illustrative fixed EUR per-million-token rates in src/icp/pricing.py, not live prices",
+  "requests": [
+    {"top_k": 1, "prompt_tokens": 100, "completion_tokens": 50, "embedding_tokens": 12, "latency_ms": 800, "judge_prompt_tokens": 120, "judge_completion_tokens": 30, "judge_latency_ms": 300, "quality_0_5": 3, "grounded_0_5": 2, "follows_instructions": true},
+    {"top_k": 1, "prompt_tokens": 110, "completion_tokens": 55, "embedding_tokens": 12, "latency_ms": 900, "judge_prompt_tokens": 125, "judge_completion_tokens": 28, "judge_latency_ms": 320, "quality_0_5": 3, "grounded_0_5": 3, "follows_instructions": true},
+    {"top_k": 3, "prompt_tokens": 180, "completion_tokens": 60, "embedding_tokens": 12, "latency_ms": 1100, "judge_prompt_tokens": 200, "judge_completion_tokens": 35, "judge_latency_ms": 360, "quality_0_5": 4, "grounded_0_5": 4, "follows_instructions": true},
+    {"top_k": 3, "prompt_tokens": 190, "completion_tokens": 62, "embedding_tokens": 12, "latency_ms": 1180, "judge_prompt_tokens": 210, "judge_completion_tokens": 34, "judge_latency_ms": 370, "quality_0_5": 4, "grounded_0_5": 4, "follows_instructions": true},
+    {"top_k": 5, "prompt_tokens": 260, "completion_tokens": 65, "embedding_tokens": 12, "latency_ms": 1350, "judge_prompt_tokens": 280, "judge_completion_tokens": 40, "judge_latency_ms": 410, "quality_0_5": 4, "grounded_0_5": 5, "follows_instructions": true},
+    {"top_k": 5, "prompt_tokens": 270, "completion_tokens": 67, "embedding_tokens": 12, "latency_ms": 1420, "judge_prompt_tokens": 290, "judge_completion_tokens": 39, "judge_latency_ms": 420, "quality_0_5": 4, "grounded_0_5": 5, "follows_instructions": true}
+  ]
+}
