@@ -2,6 +2,8 @@
 
 # Infernomics
 
+[Nicholai Gay's AI engineering portfolio](https://profile.nickcloud.dev/) · [LinkedIn](https://www.linkedin.com/in/nicholai-gay-201905148/)
+
 **An experiment workbench for the economics of LLM inference.** Infernomics compares estimated request cost, latency, cache behavior, retrieval depth, and model-judged answer quality. It helps answer a practical question: *which configuration delivers enough quality for the time and money spent?*
 
 [![Tests](https://github.com/QinnniQ/infernomics/actions/workflows/tests.yml/badge.svg)](https://github.com/QinnniQ/infernomics/actions/workflows/tests.yml) ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue) [![MIT License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
