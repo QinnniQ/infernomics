@@ -2,8 +2,9 @@
 
 Infernomics is a static decision desk for inspecting archived LLM inference runs. It connects measured latency and token use to a clearly labeled cost estimate, then shows the exact responses behind each point. The first public snapshot has **one model and three output-token settings**, so it supports a configuration comparison, not a cross-model recommendation.
 
-**Source repository:** https://github.com/QinnniQ/infernomics
-**Status:** local release candidate; no public deployment has been verified.
+- **Live site:** [infernomics.nickcloud.dev](https://infernomics.nickcloud.dev/) ([Cloudflare Pages URL](https://infernomics.pages.dev/))
+- **Source repository:** https://github.com/QinnniQ/infernomics
+- **Status:** deployed on Cloudflare Pages; the custom domain and served app HTML were verified on 15 October 2026.
 
 [Nicholai Gay's AI engineering portfolio](https://profile.nickcloud.dev/) · [LinkedIn](https://www.linkedin.com/in/nicholai-gay-201905148/)
 
@@ -85,9 +86,9 @@ The earlier Python experiment guide, including its screenshot interpretation and
 
 ## Cloudflare Pages deployment
 
-Cloudflare's [React Pages guide](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/) specifies `npm run build` and `dist`; the [Pages pricing documentation](https://developers.cloudflare.com/pages/functions/pricing/) says static asset requests are free and unlimited on both free and paid plans. The first release therefore needs only static Pages hosting. Python's OpenAI, NumPy, SQLite, and local file workloads stay outside request handling. This avoids fitting benchmark execution into a web request runtime. Cloudflare's [Pages limits](https://developers.cloudflare.com/pages/platform/limits/) currently include 500 builds/month on Free, 20,000 files per site, and 25 MiB per asset; this build is well below the file and size limits.
+The site is deployed from the `main` branch to [infernomics.nickcloud.dev](https://infernomics.nickcloud.dev/) through Cloudflare Pages Git integration. Cloudflare's [React Pages guide](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/) specifies `npm run build` and `dist`; the [Pages pricing documentation](https://developers.cloudflare.com/pages/functions/pricing/) says static asset requests are free and unlimited on both free and paid plans. The release uses only static Pages hosting. Python's OpenAI, NumPy, SQLite, and local file workloads stay outside request handling. Cloudflare's [Pages limits](https://developers.cloudflare.com/pages/platform/limits/) currently include 500 builds/month on Free, 20,000 files per site, and 25 MiB per asset; this build is well below the file and size limits.
 
-Recommended Git integration settings:
+Current Git integration settings:
 
 | Setting | Value |
 | --- | --- |
@@ -97,7 +98,7 @@ Recommended Git integration settings:
 | Output directory | `dist` |
 | Environment variables | None |
 
-`web/wrangler.toml` describes the intended Pages project for a reviewed direct upload. Before first deployment, connect the actual Cloudflare account and confirm the project name. Then build, deploy, and check the returned URL on desktop and mobile. No deployment credentials are stored here. Roll back in Cloudflare Pages by selecting the previous successful deployment, or revert the Git commit and redeploy. Because data is bundled with the build, rolling back code also rolls back the data snapshot and displayed price verification date.
+`web/wrangler.toml` names the Pages project and its `dist` output. Cloudflare built commit `58020f7` with Node.js 22.16.0 and reported a successful deployment. The `*.pages.dev` URL and custom domain returned HTTP 200; public DNS resolved the custom domain, and its HTML contained the expected Infernomics title and app assets. These checks verify delivery, not every browser interaction. No deployment credentials are stored here. Pushes to `main` trigger a new Pages build. Roll back in Cloudflare Pages by selecting the previous successful deployment, or revert the Git commit and redeploy. Because data is bundled with the build, rolling back code also rolls back the data snapshot and displayed price verification date.
 
 **No live inference is exposed.** If it is ever added, it needs server-side credentials, input/output bounds, rate and concurrency limits, timeouts, usage logs that exclude submitted prompts by default, an operational disable switch, and provider-side spending alerts. Application counters alone cannot guarantee a hard cap under concurrent traffic or delayed provider reporting.
 

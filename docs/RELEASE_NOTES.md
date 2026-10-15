@@ -7,7 +7,11 @@
 3. **Core complete:** explorer, run inspector, matched-prompt comparison, and monthly calculator. Incomplete statuses are explicit.
 4. **Methodology complete:** product method section, README, architecture diagram, case study, demo script, and portfolio copy.
 5. **Verification:** see command results below; browser and accessibility checks recorded when run.
-6. **Deployment preparation complete:** Cloudflare Pages configuration and rollback steps ready. Public deployment awaits explicit release authorization and a Cloudflare account connection.
+6. **Deployment complete:** Cloudflare Pages built Git commit `58020f7` from `main` on 15 October 2026 and published the static site at [infernomics.nickcloud.dev](https://infernomics.nickcloud.dev/). Git integration is active; rollback steps are documented in the README.
+
+## Public delivery check
+
+Cloudflare reported a successful build and deployment from `web` using Node.js 22.16.0, `npm run build`, and `dist`. The Pages URL returned HTTP 200. After the custom domain was activated, Cloudflare and Google public DNS resolved `infernomics.nickcloud.dev`; HTTPS returned HTTP 200 with the expected Infernomics title and versioned CSS/JavaScript asset paths. This is a delivery check, not a full browser regression test on the public site.
 
 ## Local checks
 
