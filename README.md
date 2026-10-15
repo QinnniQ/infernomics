@@ -1,103 +1,118 @@
-<p align="center"><img src="assets/infernomics_logo.png" width="620" alt="Infernomics logo"></p>
-
 # Infernomics
+
+Infernomics is a static decision desk for inspecting archived LLM inference runs. It connects measured latency and token use to a clearly labeled cost estimate, then shows the exact responses behind each point. The first public snapshot has **one model and three output-token settings**, so it supports a configuration comparison, not a cross-model recommendation.
+
+**Source repository:** https://github.com/QinnniQ/infernomics
+**Status:** local release candidate; no public deployment has been verified.
 
 [Nicholai Gay's AI engineering portfolio](https://profile.nickcloud.dev/) · [LinkedIn](https://www.linkedin.com/in/nicholai-gay-201905148/)
 
-**An experiment workbench for the economics of LLM inference.** Infernomics compares estimated request cost, latency, cache behavior, retrieval depth, and model-judged answer quality. It helps answer a practical question: *which configuration delivers enough quality for the time and money spent?*
+## What is available
 
-[![Tests](https://github.com/QinnniQ/infernomics/actions/workflows/tests.yml/badge.svg)](https://github.com/QinnniQ/infernomics/actions/workflows/tests.yml) ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue) [![MIT License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+- Explore three real chat sweep runs (60 attempts) from 18 February 2026 with filterable and sortable results, a chart, accessible table, run details, and shareable URL parameters.
+- Compare two or three matched runs side by side for the same prompt. The controlled setting is the maximum output-token cap (50, 100, 200).
+- Estimate monthly USD text-token spend at an official price checked on 15 October 2026. The app performs no provider calls.
+- Inspect the methodology and limitations in the UI and in this README.
 
-## At a glance
-
-| Decision | What the workbench measures | Why it matters |
-| --- | --- | --- |
-| Output budget | Tokens, estimated EUR per request, mean and p95 latency across `max_output_tokens` values | Find the spend and response-time cost of longer answers. |
-| Application cache | Cold versus warm runs and a controlled hit-rate sweep | Estimate the billable calls avoided by reusing an answer. |
-| Retrieval depth | Chat versus RAG and `top_k` sweeps, including query embedding cost | See whether extra context earns its additional cost and latency. |
-| Evaluation | Quality, groundedness, instruction following, and judge cost | Avoid treating evaluation as free or equating lower cost with better value. |
-
-The code uses OpenAI Responses and Embeddings API calls, stores local run records in SQLite/JSON and CSV, and displays reports in Streamlit. This is a **portfolio experiment**, not evidence of a deployed service or a production reliability record.
-
-## Example findings and evidence
-
-The repository includes [dashboard](assets/dashboard.png), [retrieval-depth quality](assets/plot1.png), and [cost breakdown](assets/plot2.png) screenshots from an earlier small run. The underlying CSVs were not committed, so these are historical illustrations, not independently reproducible benchmark results. Values below are transcribed only where the screenshots show a number explicitly.
-
-| Screenshot observation | Value shown | Interpretation |
-| --- | ---: | --- |
-| Cheapest chat configuration in that sweep | 29.3 µ€ estimated inference cost/request at `max_output_tokens=50` | A reference point for comparing output budgets within that run. |
-| Fastest chat configuration in that sweep | 1,289.7 ms mean at `max_output_tokens=50` | A measured sample mean, not a latency guarantee. |
-| Highest *inference-only* quality per EUR in that retrieval sweep | `top_k=1`; judge quality 3.60/5, groundedness 2.90/5 | A local ranking from that sample, not proof that `top_k=1` is generally optimal. |
-| Judge overhead for that `top_k=1` row | 77.0 µ€ estimated/request | Evaluation spend needs its own budget; the ranking above excluded it. |
-
-The [quality plot](assets/plot1.png) shows judged quality and groundedness rising from `top_k=1` to `top_k=5` alongside inference cost. The [cost plot](assets/plot2.png) shows judge cost as a substantial separate component. Cache savings are modeled with a local answer cache: a hit avoids another API call, while priming and misses remain billable. They are not provider prompt-cache discount measurements.
-
-These observations come from a tiny example workload, model-judged scores, and hard-coded illustrative EUR rates. They do not establish statistical significance, customer savings, or a production service-level target. To obtain current figures, rerun the experiments with a suitable evaluation set, record model/prices/date, and retain the generated CSVs.
-
-### Reproducible offline example
-
-For a quick inspection without an API key, the repository includes a [six-request synthetic fixture](examples/sample_topk_fixture.json), its [generated CSV summary](examples/sample_topk_summary.csv), and a [cost chart](examples/sample_topk_cost.svg). Regenerate both outputs from the repository root with:
-
-```bash
-python scripts/reproduce_sample.py
-```
-
-The script uses the same `summarize_topk` and pricing functions as the experiment pipeline. It requires only the Python standard library. The fixture is dated **2026-10-07**, names `gpt-4o-mini` and `text-embedding-3-small`, and uses the **illustrative fixed EUR rates** in `src/icp/pricing.py`. All token counts, latencies, and judge scores in this fixture are invented to exercise the calculation. The CSV and chart reproduce the arithmetic; they are not measured API results and do not recreate the older screenshots above.
+The saved OpenAI Responses API records resolve `gpt-4o-mini` to `gpt-4o-mini-2024-07-18`. Of the 60 attempts, 28 returned `status=incomplete` with reason `max_output_tokens`: 14/20 at cap 50, 10/20 at cap 100, and 4/20 at cap 200. The runner did not count these as transport errors. Infernomics distinguishes **completed**, **incomplete**, and **error** outcomes. It reports median latency only for completed responses, with its sample count. Mean estimated cost uses all attempts with recorded token use because incomplete responses can still consume tokens.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[JSONL prompts and corpus] --> B[Experiment scripts]
-    B --> C[Chat runner]
-    B --> D[RAG runner]
-    B --> E[Local answer cache]
-    D --> F[Embedding and vector retrieval]
-    D --> G[LLM judge]
-    C --> H[Pricing estimates]
-    D --> H
-    G --> H
-    B --> I[SQLite, JSON and CSV reports]
-    I --> J[Streamlit dashboard]
+  P[Python benchmark scripts] -->|paid, manual runs| O[(Local SQLite archive)]
+  O -->|validated, read-only export| J[Versioned JSON snapshot]
+  J --> R[React + TypeScript static app]
+  R -->|static assets| C[Cloudflare Pages]
+  S[Official price source] -->|dated list-price values| J
 ```
 
-The chat runner records token usage and latency. The RAG runner embeds each question, retrieves local document chunks, then sends the assembled prompt to the generator. The judge scores an answer against that same context. Aggregation reports inference (`LLM + query embedding`) and evaluation (`judge`) costs separately and together; failed judge outputs do not become zero-quality scores. Index-building embedding cost is reported separately when building the index and is not amortized into each RAG request.
+The public path is static and needs no runtime secret, database, worker, or paid inference. Python and SQLite stay in the offline benchmark workflow. The exporter reads the ignored local database, verifies matching prompts and response settings, and writes only public fields to `web/src/data/benchmark.json`. It excludes raw provider response metadata and the archived `cost_estimate` field.
 
-## Reproduce the experiments
+## Run locally
 
-Requires Python 3.10+ and an OpenAI API key. API experiments incur charges; the automated tests use local fakes and need no key.
+Requirements: Node.js 22 or newer; Python 3.13 for the pinned benchmark environment. The core Python package declares 3.10+, but this lockfile was verified on 3.13 only.
 
-```bash
+```powershell
+cd web
+npm ci
+npm run dev
+```
+
+Open the URL Vite prints. A fresh checkout needs no API key or SQLite database because the audited JSON snapshot is committed. For a release build:
+
+```powershell
+cd web
+npm ci
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+`web/dist` is the deployable output. The app has no environment variables. Its data and prices are intentionally versioned at build time; refresh them through review and redeploy, then update the visible verification date.
+
+## Data provenance and calculations
+
+The source archive is `outputs/results.sqlite`, ignored by Git. Three run IDs are published in the JSON and run detail UI. All 20 prompts match `data/eval_sets/chat_prompts.jsonl` in order; the export includes its SHA-256 hash. Each published item retains the prompt, response, index, token counts, request latency, completion status, and any incomplete reason. The archived records do **not** contain a reliable price source, prompt-template version, full generation settings, retry count, or code commit for the February execution. Four older chat runs also lack a recorded output cap and are intentionally excluded.
+
+The elapsed latency was measured with `time.perf_counter()` immediately around `client.responses.create()`, so it includes network and service time. It is **end-to-end SDK call wall time**, not time to first token. The median is calculated only across completed responses; the displayed `n` makes that denominator explicit. No p95 is shown for this small sample.
+
+There was **no chat quality evaluation** for these runs. Completion is not a quality score. The separately archived RAG judge CSV is retained locally but omitted from the public comparison: it evaluates a different task and stores only aggregate results with weaker provenance. There is no universal best-model score or quality threshold recommendation.
+
+Estimated request cost = `(recorded input tokens × input list price + recorded output tokens × output list price) / 1,000,000`. Monthly estimate multiplies that expression by the entered request count; “per day” uses 30 days. The current `gpt-4o-mini` standard text price is **$0.15 input / $0.60 output per million tokens**, checked 15 October 2026 from [official OpenAI documentation](https://developers.openai.com/api/docs/models/gpt-4o-mini). This is a **current USD list-price estimate**, not a reconstruction of 2026-02 invoices. Caching, batch discounts, tax, tools, retries, and other charges are excluded. The legacy Python pricing table contains approximate EUR values and must not be confused with the published USD estimates.
+
+## Reproduce or extend benchmark work
+
+The public app never runs paid inference. The original Python scripts remain for local experimentation. They require an OpenAI API key and can incur charges; check current model availability and prices before use. The model used in this archive is marked deprecated in [official OpenAI documentation](https://developers.openai.com/api/docs/models/gpt-4o-mini).
+
+```powershell
 python -m venv .venv
-# Activate .venv for your shell, then:
-python -m pip install -r requirements.txt
-```
-
-Copy `.env.example` to `.env` and set `OPENAI_API_KEY`. `ICP_MODEL` and `ICP_EMBED_MODEL` are read by `src/icp/config.py`. The current pricing table in `src/icp/pricing.py` contains **illustrative fixed EUR assumptions**, not live API prices or automatic currency conversion. Update it before interpreting a new run; use a model listed there or add its rates.
-
-From the repository root, run the relevant experiments:
-
-```bash
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.lock.txt
+pip install -e . --no-deps
+Copy-Item .env.example .env
+# Put your own OPENAI_API_KEY in .env; never commit it.
 python scripts/run_sweep.py
-python scripts/run_cache_experiment.py
-python scripts/cache_hit_rate_sweep.py
-python scripts/build_rag_index.py
-python scripts/run_rag_sweep.py
-python scripts/run_rag_topk_sweep.py
-streamlit run streamlit_app.py
+python scripts/export_public_benchmark.py
 ```
 
-The scripts write local artifacts under `outputs/` (ignored by Git). The dashboard reads those reports, so run at least one sweep before opening it. The included chat prompts are reused as RAG questions; replace them with task-specific questions and expected evidence before using the judge scores to guide a real decision.
+`run_sweep.py` uses the 20 prompts in `data/eval_sets/chat_prompts.jsonl` and caps `[50, 100, 200]`. It now records the dataset and runner file hashes in new run metadata; the February archive cannot be retroactively enriched. The exporter is intentionally pinned to exactly one run per cap in the local archive and will refuse an ambiguous or mismatched database. For a new dataset or model, update the exporter, inspect status and provenance, then publish a new reviewed snapshot. Do not overwrite the included historical result with generated examples.
+
+The legacy RAG and caching scripts are exploratory. The Streamlit dashboard (`streamlit_app.py`) remains in the repository as an archive viewer; its old cost labels and CSV summaries are **not** the published evidence or release UI.
+
+The earlier Python experiment guide, including its screenshot interpretation and limitations, is preserved in [Legacy experiments](docs/LEGACY_EXPERIMENTS.md). Its [synthetic offline fixture](examples/sample_topk_fixture.json) can still be regenerated with `python scripts/reproduce_sample.py`; it is not part of the measured web snapshot.
+
+## Cloudflare Pages deployment
+
+Cloudflare's [React Pages guide](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/) specifies `npm run build` and `dist`; the [Pages pricing documentation](https://developers.cloudflare.com/pages/functions/pricing/) says static asset requests are free and unlimited on both free and paid plans. The first release therefore needs only static Pages hosting. Python's OpenAI, NumPy, SQLite, and local file workloads stay outside request handling. This avoids fitting benchmark execution into a web request runtime. Cloudflare's [Pages limits](https://developers.cloudflare.com/pages/platform/limits/) currently include 500 builds/month on Free, 20,000 files per site, and 25 MiB per asset; this build is well below the file and size limits.
+
+Recommended Git integration settings:
+
+| Setting | Value |
+| --- | --- |
+| Repository | `QinnniQ/infernomics` |
+| Root directory | `web` |
+| Build command | `npm run build` (Pages installs from the lockfile) |
+| Output directory | `dist` |
+| Environment variables | None |
+
+`web/wrangler.toml` describes the intended Pages project for a reviewed direct upload. Before first deployment, connect the actual Cloudflare account and confirm the project name. Then build, deploy, and check the returned URL on desktop and mobile. No deployment credentials are stored here. Roll back in Cloudflare Pages by selecting the previous successful deployment, or revert the Git commit and redeploy. Because data is bundled with the build, rolling back code also rolls back the data snapshot and displayed price verification date.
+
+**No live inference is exposed.** If it is ever added, it needs server-side credentials, input/output bounds, rate and concurrency limits, timeouts, usage logs that exclude submitted prompts by default, an operational disable switch, and provider-side spending alerts. Application counters alone cannot guarantee a hard cap under concurrent traffic or delayed provider reporting.
 
 ## Verification and limits
 
-```bash
-python -m pip install -e '.[dev]'
-python -m pytest --cov=icp.pricing --cov=icp.cache --cov=icp.metrics.aggregation --cov=icp.metrics.judge --cov=icp.runner_chat --cov-report=term-missing --cov-fail-under=80
-```
+CI runs lint, TypeScript checking, tests, and a production build. Unit tests cover snapshot validation, median, pricing, filtering, comparison compatibility, and incomplete counts. The public site has keyboard-focus styles, semantic controls, chart text alternatives, a results table, and reduced-motion support. See `docs/RELEASE_NOTES.md` for recorded local check results and remaining work.
 
-GitHub Actions runs these local, deterministic tests on pushes and pull requests for Python 3.10 and 3.12. Coverage targets the accounting, cache, judge, and chat-runner paths; it does not claim end-to-end coverage of live API calls or the Streamlit UI. Costs depend on configured rates, and answer quality depends on the chosen judge, rubric, and dataset.
+The existing [Python test workflow](.github/workflows/tests.yml) checks the benchmark and pricing paths separately.
 
-## Author and license
+The current evidence does **not** answer “which LLM is best” across providers: one model, a small nonrepresentative prompt set, missing quality scores, and incomplete generation controls preclude that claim. It does show why cost and latency alone are insufficient when a low output limit truncates many responses.
 
-Nicholai Gay · AI engineering, LLM systems, applied optimization. [MIT licensed](LICENSE).
+## Portfolio materials
+
+- [Engineering case study](docs/CASE_STUDY.md)
+- [Demo script and verified CV/LinkedIn copy](docs/PORTFOLIO.md)
+- [Release checks and progress](docs/RELEASE_NOTES.md)
+
+Author: Nicholai Gay.

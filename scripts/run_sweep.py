@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import uuid
 from datetime import datetime, timezone
@@ -52,7 +53,15 @@ def run_config(
             run_id=run_id,
             created_at_utc=created_at,
             model=model,
-            meta={"workload": "chat", "max_output_tokens": max_output_tokens},
+            meta={
+                "workload": "chat",
+                "max_output_tokens": max_output_tokens,
+                "dataset_sha256": hashlib.sha256(PROMPTS_PATH.read_bytes()).hexdigest(),
+                "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                "latency_boundary": "wall time around Responses SDK call",
+                "quality_evaluation": "none",
+                "pricing_currency": "EUR (legacy approximate table; verify before use)",
+            },
         )
     )
 

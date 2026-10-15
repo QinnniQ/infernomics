@@ -1,5 +1,5 @@
-.venv/
 .env
+.venv/
 __pycache__/
 outputs/
 *.sqlite
@@ -9,3 +9,8 @@ htmlcov/
 .pytest_cache/
 *.egg-info/
 .uv-cache/
+web/node_modules/
+web/dist/
+web/.npm-cache/
+web/*.tsbuildinfo
+web/.audit/
