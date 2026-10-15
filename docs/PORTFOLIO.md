@@ -1,5 +1,7 @@
 # Portfolio package
 
+[Live website](https://infernomics.nickcloud.dev/) · [Website screenshot](../assets/infernomics-website.png)
+
 ## 60–90 second demo script
 
 1. **0–15 s — Frame the problem.** “Infernomics asks how much latency and spend a model configuration costs, and whether it actually completes the workload. This release uses saved, inspectable runs, so exploring it does not trigger a paid API call.”
@@ -10,7 +12,7 @@
 
 ## CV description
 
-Built Infernomics, a TypeScript/React benchmark explorer and workload cost calculator backed by 60 archived OpenAI inference attempts. Added validated Python export, matched-prompt comparisons, transparent USD list-price calculations, and Cloudflare Pages deployment preparation. Surfaced 28 output-cap incomplete attempts that the legacy dashboard did not distinguish.
+Built Infernomics, a TypeScript/React benchmark explorer and workload cost calculator backed by 60 archived OpenAI inference attempts. Added validated Python export, matched-prompt comparisons, transparent USD list-price calculations, and Cloudflare Pages deployment. Surfaced 28 output-cap incomplete attempts that the legacy dashboard did not distinguish.
 
 ## LinkedIn description
 

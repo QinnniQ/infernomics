@@ -22,4 +22,8 @@ The checked-in chat runner imported a nonexistent `estimate_cost`, preventing ne
 
 The implemented UI offers an explorer, exact run inspection, matched-prompt comparison, and monthly cost estimate with source and assumptions. It is designed to let a visitor understand the project quickly while preserving enough detail for an engineer to audit calculations.
 
+![Infernomics website homepage showing the published benchmark snapshot](../assets/infernomics-website.png)
+
+*The live site's homepage introduces the decision workflow and labels the one-model benchmark snapshot.*
+
 The next empirical milestone is a multi-model run with explicit model snapshots, full generation settings, versioned prompts, task-appropriate scoring, retries, and original pricing metadata. Until then, cross-model recommendations and claims about quality remain out of scope.

@@ -8,6 +8,10 @@ Infernomics is a static decision desk for inspecting archived LLM inference runs
 
 [Nicholai Gay's AI engineering portfolio](https://profile.nickcloud.dev/) · [LinkedIn](https://www.linkedin.com/in/nicholai-gay-201905148/)
 
+![Infernomics website homepage with navigation, evidence-led headline, and published benchmark snapshot](assets/infernomics-website.png)
+
+*The deployed Infernomics homepage, October 2026.*
+
 ## What is available
 
 - Explore three real chat sweep runs (60 attempts) from 18 February 2026 with filterable and sortable results, a chart, accessible table, run details, and shareable URL parameters.
