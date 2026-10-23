@@ -1,5 +1,7 @@
 # Portfolio package
 
+This is the **original 1.0 archive demo**. For the October 2026 local multi-model extension, use the [current README](../README.md) and [verified result note](RESULTS_2026-10-23.md). Personal interview speaking notes and career copy are stored privately in the ignored `.local/interview-prep/` directory; they are intentionally absent from the public repository.
+
 [Live website](https://infernomics.nickcloud.dev/) · [Website screenshot](../assets/infernomics-website.png)
 
 ## 60–90 second demo script
