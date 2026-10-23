@@ -21,6 +21,9 @@ def export() -> dict:
     if not DB.exists():
         raise FileNotFoundError(f"Saved benchmark database missing: {DB}")
     prompts = [json.loads(line)["prompt"] for line in DATASET.read_text(encoding="utf-8").splitlines()]
+    # Match the CRLF bytes that were hashed for the original archived run.
+    dataset_bytes = DATASET.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    dataset_digest = hashlib.sha256(dataset_bytes).hexdigest()
     conn = sqlite3.connect(f"file:{DB.as_posix()}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     runs = []
@@ -60,7 +63,7 @@ def export() -> dict:
             "model": run["model"],
             "resolvedModel": response_models.pop(),
             "task": "General chat prompts",
-            "datasetVersion": "chat-prompts-sha256:" + hashlib.sha256(DATASET.read_bytes()).hexdigest(),
+            "datasetVersion": "chat-prompts-sha256:" + dataset_digest,
             "maxOutputTokens": cap,
             "items": items,
         })

@@ -17,7 +17,11 @@ def main() -> None:
     assert [r["maxOutputTokens"] for r in old["runs"]] == [50, 100, 200]
     assert all(len(run["items"]) == 20 for run in old["runs"])
     assert [sum(item["status"] == "incomplete" for item in run["items"]) for run in old["runs"]] == [14, 10, 4]
-    digest = hashlib.sha256((ROOT / "data/eval_sets/chat_prompts.jsonl").read_bytes()).hexdigest()
+    # The archived run recorded this digest from the original CRLF file on Windows.
+    # Git checks out LF on Linux, so restore those bytes before checking the archive.
+    historical_bytes = (ROOT / "data/eval_sets/chat_prompts.jsonl").read_bytes()
+    historical_bytes = historical_bytes.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    digest = hashlib.sha256(historical_bytes).hexdigest()
     assert all(run["datasetVersion"] == "chat-prompts-sha256:" + digest for run in old["runs"])
     local = json.loads((ROOT / "web/src/data/local-benchmark.json").read_text(encoding="utf-8"))
     assert local["schemaVersion"] == 2 and local["evidenceClass"] == "local-ollama"
