@@ -1,5 +1,9 @@
 # Release progress and checks
 
+## 2.0 pricing reference follow-up — 23 October 2026
+
+Added a versioned, official-source list-price catalog for OpenAI, Anthropic, and Google to the economics scenario. Visitors can compare hypothetical monthly token charges at one entered volume. Anthropic and Google are explicitly labeled as pricing-only references: no paid provider requests, responses, quality scores, or latency measurements were collected. The historical OpenAI archive and local Ollama results remain separate evidence classes. Prices require re-verification before future releases.
+
 ## 2.0 local build — 23 October 2026
 
 The historical 60-attempt archive stayed intact. A new local Ollama experiment recorded 24 attempts across `phi3:latest` and `gemma3:latest`; the validated static export is `web/src/data/local-benchmark.json`. Both models completed 10/12 attempts and passed 2/6 strict objective checks. [PR #2](https://github.com/QinnniQ/infernomics/pull/2) merged into `main` on 23 October 2026. The live custom domain was reloaded and visibly showed the 2.0 hero, matched local comparison, and both model summaries. See [results](RESULTS_2026-10-23.md) for interpretation and [methodology](LOCAL_METHODOLOGY.md) for the controls.

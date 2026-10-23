@@ -8,6 +8,8 @@ The new held-out study ran two installed model families, `phi3:latest` and `gemm
 
 The design changed in three important ways: (1) a localhost-only adapter and manual runner capture artifact digests, dataset hash, generation settings, warmups, shuffled execution order, and separate client/server timings; (2) an append-only ignored SQLite store and read-only publication gate reject mismatched prompts, missing coverage, and corrupt metrics; (3) a dark React comparison view shows matched raw responses and objective rationale while the 60-attempt API archive stays explicit. The public site still runs no inference. Local electricity is unavailable until power and tariff assumptions are entered. [Local methodology](LOCAL_METHODOLOGY.md), [baseline audit](BASELINE_AUDIT_2026-10-23.md), and [architecture in the README](../README.md#architecture) describe the tradeoffs.
 
+The economics view also carries dated [OpenAI](https://developers.openai.com/api/docs/models/gpt-4o-mini), [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing), and [Google](https://ai.google.dev/gemini-api/docs/pricing) standard text prices as a separate reference class. It applies a visitor's hypothetical token counts and request volume to each rate. It does not claim Claude or Gemini task performance, and no paid API request was made.
+
 ### Original 1.0 archive case study
 
 ## Problem

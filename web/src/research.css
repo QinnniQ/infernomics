@@ -97,6 +97,19 @@ table{color:#d6e4d5}thead{background:#202b23}th,td{border-color:#324038}thead th
 .scenario-results>strong small{font-size:13px;letter-spacing:0;color:#d1e3c5}
 .scenario-results hr{height:1px;border:0;background:#53724e;margin:25px 0}
 .scenario-caveat{margin-top:15px}
+.scenario-hosted-select{display:grid;gap:7px;color:#c5d6c5;font-size:11px;font-weight:700;margin-bottom:18px}
+.scenario-hosted-select select{width:100%;height:42px;background:#0d1710;border:1px solid #49604a;color:#eef6ec;border-radius:5px;padding:0 11px;font-size:13px}
+.hosted-prices{background:#18221b;border:1px solid #394a3c;border-radius:10px;padding:28px;margin-top:18px}
+.hosted-prices h3{color:#edf5eb;font-size:16px;margin:0 0 8px}
+.hosted-prices p{color:#b8cbb8;font-size:12px;line-height:1.6;margin:0 0 14px}
+.hosted-prices p:last-child{margin:14px 0 0}
+.hosted-prices-scroll{overflow-x:auto}
+.hosted-prices table{width:100%;border-collapse:collapse;min-width:630px;text-align:left}
+.hosted-prices th,.hosted-prices td{padding:13px 10px;border-bottom:1px solid #394a3c;color:#e1ecdd;font-size:12px}
+.hosted-prices thead th{color:#bbed87;font:700 10px Consolas,monospace;text-transform:uppercase;letter-spacing:.5px}
+.hosted-prices tbody th{font-weight:700}
+.hosted-prices tbody th small{display:block;color:#b8cbb8;font-weight:400;margin-top:4px}
+.hosted-prices a,.section-head p a{color:#c2ed80;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:900px){.scenario-layout{grid-template-columns:1fr}}
 @media(max-width:550px){.scenario-inputs{grid-template-columns:1fr}.scenario-form,.scenario-results{padding:20px}}
 .local-method-grid article{min-height:250px}

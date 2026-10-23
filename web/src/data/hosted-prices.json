@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "evidenceClass": "published-list-price",
+  "verifiedOn": "2026-10-23",
+  "currency": "USD",
+  "unit": "per 1 million standard text tokens",
+  "models": [
+    {
+      "id": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "model": "GPT-4o mini",
+      "inputPerMillion": 0.15,
+      "outputPerMillion": 0.6,
+      "sourceUrl": "https://developers.openai.com/api/docs/models/gpt-4o-mini",
+      "note": "Legacy model; its February 2026 measured archive is separate."
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "provider": "Anthropic",
+      "model": "Claude Haiku 4.5",
+      "inputPerMillion": 1,
+      "outputPerMillion": 5,
+      "sourceUrl": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "note": "First-party Claude API base token price. No Infernomics benchmark run."
+    },
+    {
+      "id": "claude-sonnet-5",
+      "provider": "Anthropic",
+      "model": "Claude Sonnet 5",
+      "inputPerMillion": 2,
+      "outputPerMillion": 10,
+      "sourceUrl": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "note": "First-party Claude API base token price. No Infernomics benchmark run."
+    },
+    {
+      "id": "gemini-2-5-flash",
+      "provider": "Google",
+      "model": "Gemini 2.5 Flash",
+      "inputPerMillion": 0.3,
+      "outputPerMillion": 2.5,
+      "sourceUrl": "https://ai.google.dev/gemini-api/docs/pricing",
+      "note": "Paid standard text rate; output includes thinking tokens. No Infernomics benchmark run."
+    }
+  ]
+}
