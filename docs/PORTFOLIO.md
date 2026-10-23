@@ -1,8 +1,16 @@
 # Portfolio package
 
-Infernomics 2.0 is live. The original 1.0 archive demo remains below for historical context. Use the [current README](../README.md), [case study](CASE_STUDY.md), and [verified result note](RESULTS_2026-10-23.md) for the local multi-model extension. Personal interview speaking notes and career copy are stored privately in the ignored `.local/interview-prep/` directory; they are intentionally absent from the public repository.
+Infernomics is a unified LLM evaluation and economics workstation. The original 1.0 and 2.0 demos remain below for historical context. Use the [current README](../README.md), [case study](CASE_STUDY.md), [consolidation decisions](UX_CONSOLIDATION.md) and [expanded local results](RESULTS_LOCAL_V2_2026-10-23.md). Personal interview speaking notes and career copy are stored privately in the ignored `.local/interview-prep/` directory; they are intentionally absent from the public repository.
 
-[Live website](https://infernomics.nickcloud.dev/) · [2.0 screenshot](../assets/infernomics-2-overview.jpg)
+[Live website](https://infernomics.nickcloud.dev/) · [current desktop screenshot](../assets/infernomics-unified-desktop.png) · [current mobile screenshot](../assets/infernomics-unified-mobile.png)
+
+## Current 60–90 second demo
+
+1. **Overview:** “The site is static and starts with the expanded local v2 study, not the old single-model archive.”
+2. **Model Comparison:** Filter by provider, modality or evidence; inspect a Claude or Grok published specification and a local measured model. “A documented price is not a benchmark.”
+3. **Benchmarks:** Switch v2 to v1 and show how the exact experiment ID, task count and local results change together. Open one pair of saved responses. Expand the historical API archive and filter its recorded 50-token incomplete attempts.
+4. **Economics:** Choose the illustrative RAG preset. Change cache share or retries, inspect input/output cost bars and a source link, then export the JSON assumptions. “These are list-price scenarios, never bills.”
+5. **Methodology:** Explain the evidence classes, small samples, incompatible studies, and zero public inference path.
 
 ## 2.0 public summary
 

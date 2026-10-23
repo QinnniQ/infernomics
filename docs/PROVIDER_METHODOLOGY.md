@@ -17,9 +17,17 @@ No quality, response, latency or throughput is imputed to Anthropic, xAI or Goog
 
 ## Price calculation
 
-For each hosted model, requests × (1 + retry %) × input tokens × input price / 1,000,000, plus the corresponding output amount. The workspace can substitute a documented cached-input **read** price for a user-entered fraction; zero is the default. It does not assume cache hits happen automatically. Cache writes, storage, tool use, batch discounts, taxes, priority service and region premiums are excluded. xAI Grok 4.6 switches *all* input and output tokens to its documented long-context tier at 200,000 input tokens; the catalogue records its long-context cache-read rate too. Workloads beyond documented input+output or output limits have no estimate. The separate local economics panel models electricity only when the visitor supplies draw and tariff. Zero Ollama API fee does not mean zero operating cost.
+The Economics Lab uses one workload object for all models and local assumptions. Attempts = requests × (1 + extra retries % + incomplete retries %). Input cost = attempts × input tokens × [(1 − cached share) × standard input rate + cached share × documented cache-read rate] / 1,000,000. Output cost = attempts × output tokens × standard output rate / 1,000,000. Where no usable cache-read rate is modeled, the entered cache share has no effect. OpenAI GPT-4o-mini, Claude Haiku 4.5, Claude Sonnet 5, and Grok 4.6 have verified read rates in the catalogue. Google documents a paid-tier context cache rate, but also charges storage; the Lab deliberately leaves it unmodeled rather than showing an incomplete discount. Zero cache is the default. Actual cache eligibility and writes are not measured.
+
+Cache writes, storage, tool use, batch discounts, taxes, priority service and region premiums are excluded. xAI Grok 4.6 switches *all* input and output tokens to its documented long-context tier at 200,000 input tokens; the catalogue records its long-context cache-read rate too. Workloads beyond documented input+output or output limits have no estimate. The optional local infrastructure scenario uses the selected v1 or v2 completed-request median and only models electricity when draw and tariff are supplied. Hardware amortization requires its own inputs. Zero Ollama API fee does not mean zero operating cost. Sensitivity uses 0.5×, 1× and 2× entered request volume; it is linear arithmetic, not a demand forecast.
 
 These inputs are **token-count assumptions**. Provider tokenizers differ, so equal entered counts do not represent the same actual text or invoice. Gemini's displayed $0.25/$1.50 rates are its **paid-tier** standard text rates for `gemini-3.1-flash-lite`; Google's price page separately lists free-tier input and output as free of charge for eligible projects. Output charges include thinking tokens. The free-tier claim does not make every project or key eligible.
+
+Four presets—customer service, RAG search, document processing and structured extraction—are illustrative token and volume inputs. Editing any value changes to Custom. The JSON export includes the entered workload, local assumptions, selected experiment version, catalogue version, verification date, official source URLs, calculated costs or limit failures, and explicit limitations. It contains no key or private benchmark store.
+
+## Product evidence flow
+
+Navigation is Overview → Model Comparison → Benchmarks → Economics → Methodology. Model Comparison derives provider, modality and evidence filters from the catalogue and shares selected model IDs with Economics Lab. The selected local experiment version is shared with local inspection, benchmark summaries and local economics; v1 and v2 are never pooled. Benchmarks houses the distinct GPT-4o-mini archive. Its cap, status, prompt and run controls are derived from the saved 60 observations. Completion bars use all 20 attempts per cap; latency five-number distributions use completed responses with recorded times only. The archive is a historical single-model experiment, not the catalogue's organizing principle.
 
 Sources: [OpenAI GPT-4o-mini](https://developers.openai.com/api/docs/models/gpt-4o-mini), [Anthropic models](https://platform.claude.com/docs/en/models/overview) and [pricing](https://platform.claude.com/docs/en/about-claude/pricing), [Google model](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite), [pricing](https://ai.google.dev/gemini-api/docs/pricing) and [billing](https://ai.google.dev/gemini-api/docs/billing), [xAI pricing](https://docs.x.ai/developers/pricing) and [release notes](https://docs.x.ai/developers/release-notes), [Ollama Phi-3](https://ollama.com/library/phi3) and [Gemma 3](https://ollama.com/library/gemma3). The precise claims tied to each source are in the JSON catalogue.
 
@@ -52,12 +60,19 @@ flowchart LR
   L --> O[Installed Ollama artifacts]
   O --> DB[(Ignored append-only SQLite)]
   DB --> X[Validated held-out exports]
-  H[Historical GPT-4o-mini archive] --> E[Evidence index]
-  X --> E
+  H[Historical GPT-4o-mini archive] --> AF[Observed-only archive filters]
+  X --> ES[Shared v1/v2 experiment selector]
   C[Official provider docs] --> J[Versioned catalogue]
-  J --> W[Static comparison workspace]
-  E --> W
-  W --> P[Cloudflare Pages static build]
+  J --> MF[Provider, modality, evidence filters]
+  MF --> MC[Model Comparison]
+  MC --> LAB[One Economics Lab workload]
+  ES --> MC
+  ES --> BENCH[Local Benchmarks]
+  ES --> LAB
+  AF --> BENCH
+  MC --> P[Cloudflare Pages static build]
+  BENCH --> P
+  LAB --> P
   P --> V[Visitors read published data only]
   G[Optional Gemini single-call CLI] --> A{Free project attestation + explicit opt-in}
   A -->|confirmed only| API[Gemini API]

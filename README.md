@@ -1,16 +1,22 @@
 # Infernomics
 
-**Every token has a cost. Every model has a trade-off.** Infernomics is a static, inspectable decision desk for AI inference experiments. It puts matched model responses, task-specific checks, timing, completion, and cost assumptions beside the evidence that produced them.
+**Choose models with evidence in view.** Infernomics is a static, inspectable LLM evaluation and economics workstation. Its path is Overview → Model Comparison → Benchmarks → Economics → Methodology. It puts matched model responses, task-specific checks, timing, completion, and cost assumptions beside the evidence that produced them.
 
 [Live site](https://infernomics.nickcloud.dev/) · [Engineering portfolio](https://profile.nickcloud.dev/) · [Case study](docs/CASE_STUDY.md) · [Provider methodology](docs/PROVIDER_METHODOLOGY.md) · [Local methodology](docs/LOCAL_METHODOLOGY.md)
 
-The provider-independent comparison workspace covers **OpenAI, Anthropic, Google, xAI and two measured Ollama artifacts**. Its versioned catalogue records exact identifiers, capabilities, USD standard text rates, official URLs and verification dates. Cost bars are user-controlled scenarios; Anthropic, Google and xAI have no Infernomics performance measurements. The optional Gemini CLI is offline by default and has never been used for this release.
+The unified model catalogue covers **OpenAI, Anthropic, Google, xAI and two measured Ollama artifacts**. Provider, modality and evidence filters are generated from the versioned catalogue. One v1/v2 experiment selector controls local response inspection, benchmark summaries and local Economics Lab assumptions. The February GPT-4o-mini archive is accessible within Benchmarks as a separate, single-model study. Anthropic, Google and xAI have no Infernomics performance measurements. The optional Gemini CLI is offline by default and has never been used for this release.
 
-![Provider comparison workspace with evidence badges and hypothetical monthly cost chart](assets/infernomics-provider-workspace-desktop.png)
+![Unified Infernomics desktop overview](assets/infernomics-unified-desktop.png)
 
-*Locally captured desktop view of the provider workspace. The price bars are calculations, not measured model performance.*
+*Locally captured desktop overview of the unified research workstation.*
 
-![Mobile provider cost comparison](assets/infernomics-provider-workspace-mobile.png)
+![Unified Economics Lab on mobile](assets/infernomics-unified-mobile.png)
+
+![Unified Economics Lab on desktop](assets/infernomics-economics-lab-desktop.png)
+
+*Workload presets, rate comparisons and local infrastructure values are illustrative calculations, not measured bills or model performance.*
+
+The Economics Lab has one shared workload form, four illustrative presets plus custom entry, input/output cost breakdowns, documented cache-read and retry scenarios, volume sensitivity, model limits, optional local power and hardware assumptions, and JSON export of assumptions, source URLs and results. The original API calculator and hosted-versus-local form were retired; their valid arithmetic is preserved in the shared calculation modules. [Consolidation decisions](docs/UX_CONSOLIDATION.md) explain the architecture.
 
 ![Infernomics 2.0 desktop overview showing local completion evidence](assets/infernomics-2-overview.jpg)
 
@@ -27,7 +33,7 @@ The local test is small and synthetic. It demonstrates a controlled methodology 
 
 ![Matched local model responses and per-attempt measurements](assets/infernomics-2-compare.jpg)
 
-## Verified local experiment
+## Original local v1 experiment
 
 On 23 October 2026, `phi3:latest` and `gemma3:latest` each handled six held-out prompts twice. Both completed 10 of 12 attempts, with two output-limit incompletions and no transport errors. Both passed 2 of 6 objective checks; the other six attempts per model were subjective and unscored. Median client wall time among completed attempts was **12,334 ms** for Phi-3 and **26,067 ms** for Gemma 3 (n=10 each). Median Ollama generation throughput was 6.9 and 8.8 model-specific tokens/s respectively (n=10 each). These figures describe this host and protocol, not general deployment performance.
 
@@ -44,10 +50,14 @@ flowchart LR
   S --> V[Read-only validation and allowlisted export]
   V --> J[Separate v1 and v2 local JSON]
   A[February API archive] --> H[Separate historical JSON]
-  P[Official provider documentation] --> Q[Versioned model catalogue]
-  Q --> R
-  J --> R[React and TypeScript static app]
-  H --> R
+  D0[Official provider documentation] --> Q[Versioned model catalogue]
+  Q --> F[Catalogue filters and model selection]
+  J --> B[Shared experiment selector]
+  H --> B2[Historical archive filters]
+  F --> R[React and TypeScript static app]
+  B --> R
+  B2 --> R
+  R --> E[One Economics Lab workload]
   R --> P[Cloudflare Pages]
   P --> U[Public visitors: read-only]
 ```
@@ -112,7 +122,7 @@ The legacy `scripts/run_sweep.py` invokes the OpenAI API and **can incur charges
 - Ollama reports nanosecond load, prompt, and generation durations and token counts. The Python client independently measures end-to-end wall time. Nonstreaming calls provide **no time to first token**. Throughput uses Ollama's output token count divided by Ollama's generation duration.
 - Completed-only latency has an explicit sample count next to incomplete and error counts. Missing data stays null; p95 is withheld at this sample size. Model tokenizers differ.
 - Exact, bare-integer, and typed-JSON scoring rules are inspectable. Subjective summaries, technical explanations, and business tasks have review rubrics but no automatic quality score. Strict formats can reject otherwise semantically useful text.
-- Hosted costs use the [OpenAI GPT-4o-mini USD standard text list price](https://developers.openai.com/api/docs/models/gpt-4o-mini) recorded as $0.15 input / $0.60 output per million tokens, checked 15 October 2026. The model is a legacy price reference, not a claim about the February invoices. No caching, batch discount, tax, tool charge, or tokenization difference is built into that price.
+- The historical archive recalculates its recorded tokens with the [OpenAI GPT-4o-mini USD standard text list price](https://developers.openai.com/api/docs/models/gpt-4o-mini) of $0.15 input / $0.60 output per million tokens, first checked 15 October 2026. This is a legacy price reference, not a claim about February invoices. The archived usage did not record cache hits, so its historical cost estimates apply no cache discount. The current Economics Lab separately supports a documented cached-read scenario.
 - The current [catalogue](web/src/data/model-catalog.v2.json) contains source-verified standard text references for [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing), [Google](https://ai.google.dev/gemini-api/docs/pricing), [xAI](https://docs.x.ai/developers/pricing) and [OpenAI](https://developers.openai.com/api/docs/models/gpt-4o-mini), checked 23 October 2026. The earlier `hosted-prices.json` remains as a v1 historical artefact and is not used by the current site. No Anthropic, Google or xAI API call or benchmark was performed. Provider tokenizers differ and model quality remains unmeasured in this comparison.
 - The local cost scenario asks for power draw, electricity tariff, optional hardware cost, and amortization period. It does not infer ownership or operational cost. The break-even calculation is illustrative and leaves unmeasured costs out explicitly.
 

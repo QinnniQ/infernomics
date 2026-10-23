@@ -9,10 +9,10 @@
       "id": "gpt-4o-mini", "name": "GPT-4o mini", "provider": "OpenAI", "kind": "hosted",
       "contextTokens": 128000, "maxOutputTokens": 16384,
       "inputModalities": ["text", "image"], "outputModalities": ["text"],
-      "pricing": {"input": 0.15, "output": 0.60, "cachedInput": null, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
+      "pricing": {"input": 0.15, "output": 0.60, "cachedInput": 0.075, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
       "freeTierEligible": false, "execution": "disabled", "measurement": "historical-archive-only",
       "note": "Legacy model. The February 2026 GPT-4o-mini archive is a separate experiment; this is the current list price, not its invoice.",
-      "sources": [{"url": "https://developers.openai.com/api/docs/models/gpt-4o-mini", "claim": "identifier, standard text prices, modalities and token limits", "verifiedOn": "2026-10-23"}]
+      "sources": [{"url": "https://developers.openai.com/api/docs/models/gpt-4o-mini", "claim": "identifier, standard and cached text prices, modalities and token limits", "verifiedOn": "2026-10-23"}]
     },
     {
       "id": "claude-haiku-4-5-20251001", "name": "Claude Haiku 4.5", "provider": "Anthropic", "kind": "hosted",
@@ -27,10 +27,10 @@
       "id": "claude-sonnet-5", "name": "Claude Sonnet 5", "provider": "Anthropic", "kind": "hosted",
       "contextTokens": 1000000, "maxOutputTokens": 128000,
       "inputModalities": ["text", "image"], "outputModalities": ["text"],
-      "pricing": {"input": 2, "output": 10, "cachedInput": null, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
+      "pricing": {"input": 2, "output": 10, "cachedInput": 0.20, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
       "freeTierEligible": false, "execution": "disabled", "measurement": "none",
-      "note": "Standard text rate across the documented 1M context; cache pricing is intentionally omitted.",
-      "sources": [{"url": "https://platform.claude.com/docs/en/models/overview", "claim": "Claude API ID, standard prices, modalities and limits", "verifiedOn": "2026-10-23"}, {"url": "https://platform.claude.com/docs/en/about-claude/pricing", "claim": "standard pricing and long-context rule", "verifiedOn": "2026-10-23"}]
+      "note": "Standard text rate across the documented 1M context; cached-read rate excludes cache writes and eligibility requirements.",
+      "sources": [{"url": "https://platform.claude.com/docs/en/models/overview", "claim": "Claude API ID, standard prices, modalities and limits", "verifiedOn": "2026-10-23"}, {"url": "https://platform.claude.com/docs/en/about-claude/pricing", "claim": "standard and cached-read pricing", "verifiedOn": "2026-10-23"}]
     },
     {
       "id": "gemini-3.1-flash-lite", "name": "Gemini 3.1 Flash-Lite", "provider": "Google", "kind": "hosted",
@@ -38,7 +38,7 @@
       "inputModalities": ["text", "image", "video", "audio", "PDF"], "outputModalities": ["text"],
       "pricing": {"input": 0.25, "output": 1.50, "cachedInput": null, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
       "freeTierEligible": true, "execution": "local-opt-in-only", "measurement": "none",
-      "note": "Displayed rates are paid-tier standard text prices; Google separately lists free-tier input and output as free of charge. Project eligibility and available quota must be confirmed in AI Studio before local execution. Output price includes thinking tokens.",
+      "note": "Displayed rates are paid-tier standard text prices; Google separately lists free-tier input and output as free of charge. Paid-tier context caching also has storage charges, so it is not modeled. Project eligibility and available quota must be confirmed in AI Studio before local execution. Output price includes thinking tokens.",
       "sources": [{"url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite", "claim": "stable ID, modalities, limits and capabilities", "verifiedOn": "2026-10-23"}, {"url": "https://ai.google.dev/gemini-api/docs/pricing", "claim": "free-tier eligibility and paid-tier standard text prices", "verifiedOn": "2026-10-23"}, {"url": "https://ai.google.dev/gemini-api/docs/billing", "claim": "project free-tier and billing distinction", "verifiedOn": "2026-10-23"}]
     },
     {
