@@ -1,8 +1,22 @@
 # Portfolio package
 
-This is the **original 1.0 archive demo**. For the October 2026 local multi-model extension, use the [current README](../README.md) and [verified result note](RESULTS_2026-10-23.md). Personal interview speaking notes and career copy are stored privately in the ignored `.local/interview-prep/` directory; they are intentionally absent from the public repository.
+Infernomics 2.0 is live. The original 1.0 archive demo remains below for historical context. Use the [current README](../README.md), [case study](CASE_STUDY.md), and [verified result note](RESULTS_2026-10-23.md) for the local multi-model extension. Personal interview speaking notes and career copy are stored privately in the ignored `.local/interview-prep/` directory; they are intentionally absent from the public repository.
 
-[Live website](https://infernomics.nickcloud.dev/) · [Website screenshot](../assets/infernomics-website.png)
+[Live website](https://infernomics.nickcloud.dev/) · [2.0 screenshot](../assets/infernomics-2-overview.jpg)
+
+## 2.0 public summary
+
+Built an evidence-led inference decision desk with a reproducible, localhost-only Ollama benchmark, a frozen synthetic evaluation suite, validated publication of model responses and measurements, and a static React comparison UI. Compared Phi-3 and Gemma 3 on 24 held-out attempts while keeping the original 60 GPT-4o-mini archive separate. The site shows completion, narrow objective checks, timing denominators, and user-supplied cost assumptions without implying a universal model ranking or making live inference calls.
+
+### 60–90 second live demo
+
+1. **Start at the local comparison.** “Two already installed model artifacts received the same six held-out prompts twice. Each completed 10 of 12 attempts; the two incompletions per model hit the output limit.”
+2. **Open one matched response.** “Here are the exact outputs, wall time, token counts, and scoring rationale. The strict JSON check rejects Markdown fences; subjective tasks are left for human review.”
+3. **Show the archive boundary.** “The 60 older GPT-4o-mini API attempts use a different environment and protocol, so I show them as a separate evidence class.”
+4. **Change a cost assumption.** “Hosted cost uses dated list prices. Local electricity and hardware are scenarios only after you supply power, tariff, and purchase assumptions.”
+5. **Close with the limit.** “Six synthetic prompts cannot prove broad superiority. The design makes that uncertainty visible while leaving every published response inspectable.”
+
+## Original 1.0 archive demo
 
 ## 60–90 second demo script
 

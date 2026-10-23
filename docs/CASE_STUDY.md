@@ -36,4 +36,4 @@ The implemented UI offers an explorer, exact run inspection, matched-prompt comp
 
 *The live site's homepage introduces the decision workflow and labels the one-model benchmark snapshot.*
 
-The next empirical milestone is a multi-model run with explicit model snapshots, full generation settings, versioned prompts, task-appropriate scoring, retries, and original pricing metadata. Until then, cross-model recommendations and claims about quality remain out of scope.
+This was the next milestone identified at the 1.0 release. The 2.0 local study above adds two model artifacts, versioned prompts, generation settings, and narrow task-appropriate scoring. Broader cross-model recommendations still require more prompts, repeat runs, and independent human review.

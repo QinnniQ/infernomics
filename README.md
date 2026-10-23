@@ -6,7 +6,7 @@
 
 ![Infernomics 2.0 desktop overview showing local completion evidence](assets/infernomics-2-overview.jpg)
 
-*Locally captured 2.0 build, 23 October 2026. The live production site may still serve the previous version until a new Cloudflare deployment completes.*
+*Locally captured 2.0 build, 23 October 2026. The 2.0 site was verified live on the custom domain after [PR #2](https://github.com/QinnniQ/infernomics/pull/2) merged.*
 
 ## What the evidence supports
 
@@ -62,7 +62,7 @@ npm test
 npm run build
 ```
 
-`web/dist` is the static deployment output. The existing Cloudflare Pages integration uses `web` as root, `npm run build`, and `dist` as output. It requires no new service or environment variable. Publishing still requires reviewing and deploying the new build; local success alone does not prove the live domain is updated.
+`web/dist` is the static deployment output. The existing Cloudflare Pages integration uses `web` as root, `npm run build`, and `dist` as output. It requires no new service or environment variable. The 2.0 homepage and model comparison were verified at [infernomics.nickcloud.dev](https://infernomics.nickcloud.dev/) on 23 October 2026 after the release merged into `main`.
 
 ## Run the local benchmark
 
