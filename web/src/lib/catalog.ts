@@ -59,7 +59,7 @@ export type Workload = { requests: number; inputTokens: number; outputTokens: nu
 export function estimateModelCost(model: CatalogModel, workload: Workload) {
   if (model.kind !== 'hosted' || !model.pricing) return null
   const v = Object.values(workload)
-  if (v.some(x => !Number.isFinite(x) || x < 0) || workload.retryPercent > 100 || workload.cachedInputPercent > 100) throw new Error('Invalid workload')
+  if (v.some(x => !Number.isFinite(x) || x < 0) || workload.retryPercent > 200 || workload.cachedInputPercent > 100) throw new Error('Invalid workload')
   if ((model.contextTokens !== null && workload.inputTokens + workload.outputTokens > model.contextTokens) ||
       (model.maxOutputTokens !== null && workload.outputTokens > model.maxOutputTokens)) return null
   const { pricing } = model

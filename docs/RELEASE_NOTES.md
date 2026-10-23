@@ -1,5 +1,11 @@
 # Release progress and checks
 
+## Unified evaluation and Economics Lab — 23 October 2026
+
+Consolidated the frontend into Overview → Model Comparison → Benchmarks → Economics → Methodology. Catalogue filters and selected comparison models now use one source-backed model list. A shared v1/v2 selector governs local inspection, benchmark summaries and local economics. The GPT-4o-mini archive keeps all 60 observations, adds observed-only cap/status/prompt/run filters, completion analysis and completed-only latency distributions, and no longer dominates the landing journey. Three redundant cost forms were replaced by one workload state with illustrative presets, input/output and cache breakdowns, retry assumptions, sensitivity, model limits, optional local infrastructure inputs and a source-linked JSON export. Superseded frontend components and CSS were removed; benchmark infrastructure and public data snapshots remain unchanged. [Decision record](UX_CONSOLIDATION.md).
+
+Official OpenAI, Anthropic, Google and xAI rate pages were rechecked before publication. The catalogue adds documented GPT-4o-mini and Claude Sonnet 5 cached-input read rates; Google paid-tier context caching remains unmodeled because storage fees are separate. No provider API request was executed. Desktop and mobile screenshots were captured at 1440 px and 390 px. Local checks: 29 Python tests, 26 web tests, ESLint, TypeScript/Vite build and public-data validation passed. A Windows checkout had converted `local_v2.jsonl` to CRLF; `.gitattributes` now pins LF so its published SHA-256 remains reproducible. Deployment status is recorded in the release handover.
+
 ## Provider-independent workspace — 23 October 2026
 
 Added a versioned, official-source model catalogue for OpenAI, Anthropic, Google, xAI and Ollama; a central cross-provider workstation; an evidence-class index; a dry-run-first and free-tier-gated Gemini local adapter; paid-disabled Anthropic and xAI adapters; and a separate 12-prompt held-out Ollama v2 snapshot. The original v1 local snapshot and February GPT-4o-mini archive are preserved. [Provider methods](PROVIDER_METHODOLOGY.md) and [v2 results](RESULTS_LOCAL_V2_2026-10-23.md) record precise claims and limitations.

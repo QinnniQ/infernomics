@@ -1,5 +1,19 @@
 # Engineering case study: Infernomics
 
+## One evaluation and economics platform — October 2026
+
+The product audit found three independently managed cost forms, a v2-first provider workspace beside a v1-only local comparison, and three archive filters whose sole choices were OpenAI, GPT-4o-mini and one task category. The code was technically functional but its structure made the original 60-attempt experiment appear to define the platform. Visitors could see different local latency figures without a clear reason.
+
+I consolidated the React presentation into five steps: Overview, Model Comparison, Benchmarks, Economics and Methodology. The catalogue now generates provider, modality and evidence controls; selecting a model for comparison feeds the Economics Lab. A shared v1/v2 selector drives local response inspection, benchmark cards and the local infrastructure scenario. The historical API archive remains a separate expandable analysis with controls generated only from observed output caps, statuses, prompts and runs. Its completion bars and completed-only latency five-number summaries preserve the original denominators. The raw snapshots and benchmark infrastructure were not changed.
+
+Economics now has one workload state, four clearly illustrative presets and a custom mode. It applies sourced standard text prices to input/output tokens, additive retry assumptions, verified cache-read rates and xAI's long-context threshold. The interface shows per-model breakdowns, volume and cache sensitivity, context-limit failures, and optional local energy/hardware estimates. Exported JSON includes assumptions, catalogue version, verification date, source URLs and limitations. These calculations are not bills or performance measures. Claude, Gemini and Grok still have no Infernomics quality or latency samples.
+
+The engineering tradeoff was to refactor only the browser layer and reusable calculations. The frozen Python runners, local SQLite publication gate, static Cloudflare Pages deployment, Gemini free-tier opt-in and disabled paid adapters remain intact. The decision and evidence flow are documented in [UX consolidation](UX_CONSOLIDATION.md). Automated tests and desktop/mobile browser checks cover selection, filtering, formulas, provenance, responsive layout and key state transitions.
+
+![Unified Infernomics research workstation](../assets/infernomics-unified-desktop.png)
+
+![Unified Economics Lab on mobile](../assets/infernomics-unified-mobile.png)
+
 ## Provider-independent extension — October 2026
 
 The central product interaction is now a source-backed comparison of seven model entries across OpenAI, Anthropic, Google, xAI and local Ollama. Every entry has a precise ID, published capability and price claims where applicable, first-party links, and a verification date. The visitor can filter by provider, select models, change a workload, inspect a cost chart and see why a figure is measured, published or hypothetical. The public Cloudflare app remains a static bundle with no credentials or live inference route.
