@@ -1,5 +1,17 @@
 # Engineering case study: Infernomics
 
+## Provider-independent extension — October 2026
+
+The central product interaction is now a source-backed comparison of seven model entries across OpenAI, Anthropic, Google, xAI and local Ollama. Every entry has a precise ID, published capability and price claims where applicable, first-party links, and a verification date. The visitor can filter by provider, select models, change a workload, inspect a cost chart and see why a figure is measured, published or hypothetical. The public Cloudflare app remains a static bundle with no credentials or live inference route.
+
+The main engineering decision was to preserve evidence boundaries. The original 60-attempt GPT-4o-mini archive and 24-attempt Ollama v1 study remain intact. A new 24-attempt Ollama v2 study doubles held-out prompt coverage from six to twelve tasks across the same six categories. In v2, Phi-3 completed 10/12 and passed 3/6 objective checks; Gemma 3 completed 9/12 and passed 2/6. Six further tasks per model require human review. [V2 results](RESULTS_LOCAL_V2_2026-10-23.md) give denominators and limitations. The task sets differ, so v1 and v2 are not pooled.
+
+The price model uses official text list rates and applies a documented xAI long-context threshold and optional cache-read rates. Equal entered token counts are a scenario assumption because tokenizers differ. The interface does not assign synthetic quality or speed to untested commercial models. An optional Google adapter is dry-run first and requires an exact, same-day free-tier project and API-key attestation before one local call. Paid Anthropic and xAI adapters always reject execution. No paid API expenditure or new hosted request occurred during this release. [Provider methodology](PROVIDER_METHODOLOGY.md) describes the contracts and trade-offs.
+
+![Seven documented model entries in the desktop comparison workspace](../assets/infernomics-provider-workspace-desktop.png)
+
+*The model list distinguishes the historical OpenAI archive, local measurements, and published specifications. Cost bars use a visitor-entered workload.*
+
 ## 2.0 extension — October 2026
 
 The original case study below explains the 1.0 API archive. The 2.0 extension adds a **separate** local Ollama experiment rather than reinterpreting those historical API measurements. The product question is now which model and setting fit a particular workload across task outcome, completion, latency, and cost assumptions.

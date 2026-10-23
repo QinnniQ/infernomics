@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "updatedOn": "2026-10-23",
+  "records": [
+    {"id": "ollama-local-v1", "evidenceClass": "local-measurement", "status": "recorded", "sampleCount": 24, "modelCount": 2, "taskCount": 6, "source": "local-benchmark.json", "datasetVersion": "local-v1-frozen-2026-10-23", "comparability": "Matched only within this local run and its two installed model artifacts."},
+    {"id": "ollama-local-v2", "evidenceClass": "local-measurement", "status": "recorded", "sampleCount": 24, "modelCount": 2, "taskCount": 12, "source": "local-v2-benchmark.json", "datasetVersion": "local-v2-frozen-2026-10-23", "comparability": "The expanded suite differs from v1; scores cannot be pooled or compared as a single task set."},
+    {"id": "gpt-4o-mini-2026-02", "evidenceClass": "hosted-api-measurement", "status": "recorded", "sampleCount": 60, "modelCount": 1, "taskCount": 20, "source": "benchmark.json", "datasetVersion": "chat-prompts-sha256", "comparability": "Historical OpenAI archive uses different prompts, host, network path and measurement boundary from Ollama; no cross-provider latency ranking."},
+    {"id": "gemini-free-tier", "evidenceClass": "hosted-api-measurement", "status": "pending", "sampleCount": 0, "modelCount": 0, "taskCount": 0, "source": null, "datasetVersion": null, "comparability": "No Gemini requests or measured outcomes; local free-tier opt-in requires project confirmation."},
+    {"id": "provider-catalog-v2", "evidenceClass": "published-provider-specification", "status": "documented", "sampleCount": 0, "modelCount": 7, "taskCount": 0, "source": "model-catalog.v2.json", "datasetVersion": null, "comparability": "Identifiers, token limits and prices are provider-published specifications, not Infernomics measurements."},
+    {"id": "workload-scenario-v2", "evidenceClass": "hypothetical-cost-calculation", "status": "calculated-in-browser", "sampleCount": 0, "modelCount": 7, "taskCount": 0, "source": null, "datasetVersion": null, "comparability": "User-entered token counts and request volume are assumptions; no bill, quality score or latency is inferred."}
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "catalogVersion": "2026-10-23",
+  "verifiedOn": "2026-10-23",
+  "currency": "USD",
+  "priceUnit": "per 1 million standard text tokens",
+  "models": [
+    {
+      "id": "gpt-4o-mini", "name": "GPT-4o mini", "provider": "OpenAI", "kind": "hosted",
+      "contextTokens": 128000, "maxOutputTokens": 16384,
+      "inputModalities": ["text", "image"], "outputModalities": ["text"],
+      "pricing": {"input": 0.15, "output": 0.60, "cachedInput": null, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
+      "freeTierEligible": false, "execution": "disabled", "measurement": "historical-archive-only",
+      "note": "Legacy model. The February 2026 GPT-4o-mini archive is a separate experiment; this is the current list price, not its invoice.",
+      "sources": [{"url": "https://developers.openai.com/api/docs/models/gpt-4o-mini", "claim": "identifier, standard text prices, modalities and token limits", "verifiedOn": "2026-10-23"}]
+    },
+    {
+      "id": "claude-haiku-4-5-20251001", "name": "Claude Haiku 4.5", "provider": "Anthropic", "kind": "hosted",
+      "contextTokens": 200000, "maxOutputTokens": 64000,
+      "inputModalities": ["text", "image"], "outputModalities": ["text"],
+      "pricing": {"input": 1, "output": 5, "cachedInput": 0.10, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
+      "freeTierEligible": false, "execution": "disabled", "measurement": "none",
+      "note": "Pinned Claude API snapshot. Standard uncached text rates; cache write and batch are excluded.",
+      "sources": [{"url": "https://platform.claude.com/docs/en/models/haiku-4-5/overview", "claim": "pinned ID, standard prices, cache read price, modalities and limits", "verifiedOn": "2026-10-23"}]
+    },
+    {
+      "id": "claude-sonnet-5", "name": "Claude Sonnet 5", "provider": "Anthropic", "kind": "hosted",
+      "contextTokens": 1000000, "maxOutputTokens": 128000,
+      "inputModalities": ["text", "image"], "outputModalities": ["text"],
+      "pricing": {"input": 2, "output": 10, "cachedInput": null, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
+      "freeTierEligible": false, "execution": "disabled", "measurement": "none",
+      "note": "Standard text rate across the documented 1M context; cache pricing is intentionally omitted.",
+      "sources": [{"url": "https://platform.claude.com/docs/en/models/overview", "claim": "Claude API ID, standard prices, modalities and limits", "verifiedOn": "2026-10-23"}, {"url": "https://platform.claude.com/docs/en/about-claude/pricing", "claim": "standard pricing and long-context rule", "verifiedOn": "2026-10-23"}]
+    },
+    {
+      "id": "gemini-3.1-flash-lite", "name": "Gemini 3.1 Flash-Lite", "provider": "Google", "kind": "hosted",
+      "contextTokens": 1048576, "maxOutputTokens": 65536,
+      "inputModalities": ["text", "image", "video", "audio", "PDF"], "outputModalities": ["text"],
+      "pricing": {"input": 0.25, "output": 1.50, "cachedInput": null, "thresholdTokens": null, "longInput": null, "longOutput": null, "longCachedInput": null},
+      "freeTierEligible": true, "execution": "local-opt-in-only", "measurement": "none",
+      "note": "Displayed rates are paid-tier standard text prices; Google separately lists free-tier input and output as free of charge. Project eligibility and available quota must be confirmed in AI Studio before local execution. Output price includes thinking tokens.",
+      "sources": [{"url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite", "claim": "stable ID, modalities, limits and capabilities", "verifiedOn": "2026-10-23"}, {"url": "https://ai.google.dev/gemini-api/docs/pricing", "claim": "free-tier eligibility and paid-tier standard text prices", "verifiedOn": "2026-10-23"}, {"url": "https://ai.google.dev/gemini-api/docs/billing", "claim": "project free-tier and billing distinction", "verifiedOn": "2026-10-23"}]
+    },
+    {
+      "id": "grok-4.6", "name": "Grok 4.6", "provider": "xAI", "kind": "hosted",
+      "contextTokens": 500000, "maxOutputTokens": null,
+      "inputModalities": ["text", "image"], "outputModalities": ["text"],
+      "pricing": {"input": 2, "output": 6, "cachedInput": 0.50, "thresholdTokens": 200000, "longInput": 4, "longOutput": 12, "longCachedInput": 1},
+      "freeTierEligible": false, "execution": "disabled", "measurement": "none",
+      "note": "Global endpoint, standard tier. At 200k or more prompt tokens, xAI applies long-context rates to all tokens. Regional and priority premiums are excluded.",
+      "sources": [{"url": "https://docs.x.ai/developers/pricing", "claim": "ID, context limit, standard and long-context prices", "verifiedOn": "2026-10-23"}, {"url": "https://docs.x.ai/developers/release-notes", "claim": "text and image input; text output", "verifiedOn": "2026-10-23"}]
+    },
+    {
+      "id": "phi3:latest", "name": "Phi-3 · local", "provider": "Ollama", "kind": "local",
+      "artifactDigest": "4f222292793889a9a40a020799cfd28d53f3e01af25d48e06c5e708610fc47e9",
+      "contextTokens": null, "maxOutputTokens": null,
+      "inputModalities": ["text"], "outputModalities": ["text"],
+      "pricing": null, "freeTierEligible": false, "execution": "local-manual-only", "measurement": "local-v1",
+      "note": "Installed tag is movable; the published experiment pins its artifact digest. API provider fee is zero; hardware and energy are unmeasured.",
+      "sources": [{"url": "https://ollama.com/library/phi3", "claim": "Ollama model family", "verifiedOn": "2026-10-23"}]
+    },
+    {
+      "id": "gemma3:latest", "name": "Gemma 3 · local", "provider": "Ollama", "kind": "local",
+      "artifactDigest": "a2af6cc3eb7fa8be8504abaf9b04e88f17a119ec3f04a3addf55f92841195f5a",
+      "contextTokens": null, "maxOutputTokens": null,
+      "inputModalities": ["text"], "outputModalities": ["text"],
+      "pricing": null, "freeTierEligible": false, "execution": "local-manual-only", "measurement": "local-v1",
+      "note": "Installed tag is movable; the published experiment pins its artifact digest. Capabilities are limited here to the tested text path.",
+      "sources": [{"url": "https://ollama.com/library/gemma3", "claim": "Ollama model family", "verifiedOn": "2026-10-23"}]
+    }
+  ]
+}

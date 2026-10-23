@@ -19,14 +19,17 @@ def main() -> None:
     parser.add_argument("--max-output-tokens", type=int, default=128)
     parser.add_argument("--timeout", type=float, default=180)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--suite", choices=["v1", "v2"], default="v2", help="Versioned task suite; v1 publication is preserved")
     parser.add_argument("--export-id", help="Validate and publish an existing held-out experiment; no inference")
     parser.add_argument("--db", type=Path, default=ROOT / ".local/benchmarks.sqlite")
     args = parser.parse_args()
     if args.export_id:
-        result = public_export(args.db, ROOT / "web/src/data/local-benchmark.json", experiment_id=args.export_id)
+        output = ROOT / ("web/src/data/local-v2-benchmark.json" if args.suite == "v2" else "web/src/data/local-benchmark.json")
+        expected = "local-v2-frozen-2026-10-23" if args.suite == "v2" else "local-v1-frozen-2026-10-23"
+        result = public_export(args.db, output, experiment_id=args.export_id, expected_dataset_version=expected)
         print(json.dumps({"published": result["experiment"]["id"], "observations": len(result["observations"])}))
     else:
-        result = run(ROOT / "data/eval_sets/local_v1.jsonl", args.db, models=args.models,
+        result = run(ROOT / f"data/eval_sets/local_{args.suite}.jsonl", args.db, models=args.models,
                      split=args.split, repetitions=args.repetitions, max_output_tokens=args.max_output_tokens,
                      timeout=args.timeout, dry_run=args.dry_run)
         print(json.dumps(result, indent=2))
