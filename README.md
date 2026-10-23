@@ -2,7 +2,15 @@
 
 **Every token has a cost. Every model has a trade-off.** Infernomics is a static, inspectable decision desk for AI inference experiments. It puts matched model responses, task-specific checks, timing, completion, and cost assumptions beside the evidence that produced them.
 
-[Live site](https://infernomics.nickcloud.dev/) · [Engineering portfolio](https://profile.nickcloud.dev/) · [Case study](docs/CASE_STUDY.md) · [Local methodology](docs/LOCAL_METHODOLOGY.md)
+[Live site](https://infernomics.nickcloud.dev/) · [Engineering portfolio](https://profile.nickcloud.dev/) · [Case study](docs/CASE_STUDY.md) · [Provider methodology](docs/PROVIDER_METHODOLOGY.md) · [Local methodology](docs/LOCAL_METHODOLOGY.md)
+
+The provider-independent comparison workspace covers **OpenAI, Anthropic, Google, xAI and two measured Ollama artifacts**. Its versioned catalogue records exact identifiers, capabilities, USD standard text rates, official URLs and verification dates. Cost bars are user-controlled scenarios; Anthropic, Google and xAI have no Infernomics performance measurements. The optional Gemini CLI is offline by default and has never been used for this release.
+
+![Provider comparison workspace with evidence badges and hypothetical monthly cost chart](assets/infernomics-provider-workspace-desktop.png)
+
+*Locally captured desktop view of the provider workspace. The price bars are calculations, not measured model performance.*
+
+![Mobile provider cost comparison](assets/infernomics-provider-workspace-mobile.png)
 
 ![Infernomics 2.0 desktop overview showing local completion evidence](assets/infernomics-2-overview.jpg)
 
@@ -12,7 +20,8 @@
 
 - **Local multi-model study:** one held-out six-prompt suite, two repetitions per prompt, and two already installed Ollama models from different families. Exact responses and deterministic scoring rationale are public in the versioned static snapshot.
 - **Historical API archive:** 60 GPT-4o-mini attempts from February 2026 on the same 20 prompts under output caps of 50, 100, and 200 tokens. **28 ended incomplete** at the cap (14, 10, and 4 respectively). The archive is preserved as a separate evidence class.
-- **Economics:** dated OpenAI, Anthropic, and Google standard text list-price references can be compared for user-entered token counts. These are price-only scenarios, not measured performance for Claude or Gemini. Local API fee is zero but electricity and hardware remain unknown until a visitor supplies assumptions. This is not an invoice or production forecast.
+- **Expanded local suite:** `local_v2.jsonl` has 24 versioned tasks, including 12 held-out prompts across six categories. Its results are published separately from v1; they are not a common score or a provider-wide ranking.
+- **Economics:** dated OpenAI, Anthropic, Google and xAI standard text list-price references can be compared for entered token counts, retry volume and documented cache-read assumptions. These are price-only scenarios. Local API fee is zero but electricity and hardware remain unknown until a visitor supplies assumptions. This is not an invoice or production forecast.
 
 The local test is small and synthetic. It demonstrates a controlled methodology and specific model behavior, **not** a universal “best model.” The February API timings cannot be ranked against the local Ollama timings because the hardware, network, prompts, and measurement boundaries differ. Completion is not correctness; subjective answers await human review.
 
@@ -28,20 +37,22 @@ The strict extraction check rejected Markdown-fenced JSON even where the fields 
 
 ```mermaid
 flowchart LR
-  D[Versioned synthetic suite] --> C[Manual Python CLI]
+  D[Versioned v1 and v2 suites] --> C[Manual Python CLI]
   C --> O[Localhost Ollama models]
   O --> M[Measurements and task checks]
   M --> S[(Ignored SQLite store)]
   S --> V[Read-only validation and allowlisted export]
-  V --> J[Versioned local JSON]
+  V --> J[Separate v1 and v2 local JSON]
   A[February API archive] --> H[Separate historical JSON]
+  P[Official provider documentation] --> Q[Versioned model catalogue]
+  Q --> R
   J --> R[React and TypeScript static app]
   H --> R
   R --> P[Cloudflare Pages]
   P --> U[Public visitors: read-only]
 ```
 
-The public app has no inference backend, database service, visitor API key, or billable compute endpoint. `src/icp/local_benchmark/adapter.py` defines the provider-neutral adapter contract and implements only the local Ollama HTTP path. `runner.py` records the model digest, settings, dataset hash, host profile, run order, and observations. `evaluation.py` applies narrow objective checks. `store.py` maintains append-only local records and refuses malformed publication. `web/src/lib/local.ts` validates the bundled snapshot and computes transparent summaries; `web/src/components/LocalComparison.tsx` renders model selection, completion chart, and matched responses. The original API scripts and archive remain separate.
+The public app has no inference backend, database service, visitor API key, or billable compute endpoint. `src/icp/local_benchmark/adapter.py` defines the local Ollama path. `src/icp/provider_adapters.py` contains a dry-run-first Gemini adapter and non-networking Anthropic/xAI stubs; none are bundled into the site. `runner.py` records the artifact digest, settings, dataset hash, host profile, run order, and observations. `store.py` maintains append-only local records and refuses malformed publication. The model catalogue, evidence index, and saved snapshots feed the static React workspace. The original API scripts and archive remain separate. [Architecture and evidence classes](docs/PROVIDER_METHODOLOGY.md) document the boundaries.
 
 ## Run the website locally
 
@@ -73,30 +84,36 @@ From the repository root in PowerShell:
 ```powershell
 ollama list
 $env:PYTHONPATH = (Resolve-Path .\src).Path
-python scripts/run_local_benchmark.py --dry-run
-python scripts/run_local_benchmark.py --models phi3:latest gemma3:latest --split test --repetitions 2 --max-output-tokens 128
+python scripts/run_local_benchmark.py --suite v2 --dry-run
+python scripts/run_local_benchmark.py --suite v2 --models phi3:latest gemma3:latest --split test --repetitions 1 --max-output-tokens 128
 ```
 
 The last command prints an experiment ID and writes `.local/benchmarks.sqlite`, which Git ignores. Inspect the observations, then publish a **specific** held-out experiment into static JSON:
 
 ```powershell
-python scripts/run_local_benchmark.py --export-id YOUR_EXPERIMENT_ID
+python scripts/run_local_benchmark.py --suite v2 --export-id YOUR_EXPERIMENT_ID
 python scripts/validate_public_data.py
 python scripts/manual_review.py --experiment-id YOUR_EXPERIMENT_ID
 ```
 
-The manual review sheet is private under `.local/reviews/`. Fill all rubric fields, reviewer ID, and rationale; then run `python scripts/manual_review.py --validate .local/reviews/manual-review.jsonl`. These ratings are not currently published. For a different small model family, verify its [tag, size, and license](docs/LOCAL_METHODOLOGY.md), explicitly install it yourself, and pass its exact installed tag to `--models`. No paid provider is used by this path.
+The v2 export goes to `web/src/data/local-v2-benchmark.json`; the original v1 experiment remains in `local-benchmark.json` and requires `--suite v1` to export. The manual review sheet is private under `.local/reviews/`. Fill all rubric fields, reviewer ID, and rationale; then run `python scripts/manual_review.py --validate .local/reviews/manual-review.jsonl`. These ratings are not currently published. For a different small model family, verify its [tag, size, and license](docs/LOCAL_METHODOLOGY.md), explicitly install it yourself, and pass its exact installed tag to `--models`. No paid provider is used by this path.
+
+### Optional Gemini free-tier path
+
+`python scripts/run_gemini_free.py` is a network-free dry-run. Live execution requires an exact same-day Google AI Studio project attestation, disabled billing, free-tier access to `gemini-3.1-flash-lite`, confirmed remaining quota, a matching API-key fingerprint, and the explicit `--execute-free-tier` flag. The default is one bounded text probe; `--benchmark-v2 --max-requests 12` plans the full held-out suite, with sequential spacing and no retry or paid fallback. Results stay private under `.local/gemini/`. **No Gemini API request was sent for this release.** [Detailed opt-in steps and limits](docs/PROVIDER_METHODOLOGY.md).
+
+Anthropic and xAI inference adapters always raise `PaidInferenceDisabled`; API credentials alone cannot enable them. Promotional credits have not been verified. Consumer chat plans are not API credits. No paid inference was executed, and the site cannot run inference for visitors.
 
 The legacy `scripts/run_sweep.py` invokes the OpenAI API and **can incur charges**. Do not run it as part of this local quickstart or CI. Its archive exporter remains available to verify the February SQLite source when that ignored database is present.
 
 ## Methods, cost safeguards, and limits
 
-- The 18-item synthetic suite is split into development, calibration, and test sets (six items per split across six categories). The held-out test was frozen on 23 October 2026. Benchmark evaluation is not model training or fine-tuning.
+- The original 18-item synthetic suite is split into development, calibration, and test sets (six per split). The expanded 24-item v2 suite has 12 held-out prompts (two per category). Both were frozen separately on 23 October 2026. Benchmark evaluation is not model training or fine-tuning.
 - Ollama reports nanosecond load, prompt, and generation durations and token counts. The Python client independently measures end-to-end wall time. Nonstreaming calls provide **no time to first token**. Throughput uses Ollama's output token count divided by Ollama's generation duration.
 - Completed-only latency has an explicit sample count next to incomplete and error counts. Missing data stays null; p95 is withheld at this sample size. Model tokenizers differ.
 - Exact, bare-integer, and typed-JSON scoring rules are inspectable. Subjective summaries, technical explanations, and business tasks have review rubrics but no automatic quality score. Strict formats can reject otherwise semantically useful text.
 - Hosted costs use the [OpenAI GPT-4o-mini USD standard text list price](https://developers.openai.com/api/docs/models/gpt-4o-mini) recorded as $0.15 input / $0.60 output per million tokens, checked 15 October 2026. The model is a legacy price reference, not a claim about the February invoices. No caching, batch discount, tax, tool charge, or tokenization difference is built into that price.
-- The scenario also shows source-verified standard text price references for [Anthropic Claude](https://platform.claude.com/docs/en/about-claude/pricing) and [Google Gemini](https://ai.google.dev/gemini-api/docs/pricing), checked 23 October 2026 and versioned in `web/src/data/hosted-prices.json`. No Anthropic or Google API call or benchmark was performed. Assuming identical token counts across providers does not mean identical text would tokenize identically; model capabilities and quality remain unmeasured in this comparison.
+- The current [catalogue](web/src/data/model-catalog.v2.json) contains source-verified standard text references for [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing), [Google](https://ai.google.dev/gemini-api/docs/pricing), [xAI](https://docs.x.ai/developers/pricing) and [OpenAI](https://developers.openai.com/api/docs/models/gpt-4o-mini), checked 23 October 2026. The earlier `hosted-prices.json` remains as a v1 historical artefact and is not used by the current site. No Anthropic, Google or xAI API call or benchmark was performed. Provider tokenizers differ and model quality remains unmeasured in this comparison.
 - The local cost scenario asks for power draw, electricity tariff, optional hardware cost, and amortization period. It does not infer ownership or operational cost. The break-even calculation is illustrative and leaves unmeasured costs out explicitly.
 
 [Detailed local methodology](docs/LOCAL_METHODOLOGY.md) · [Baseline audit](docs/BASELINE_AUDIT_2026-10-23.md) · [Legacy experiments](docs/LEGACY_EXPERIMENTS.md) · [Original case study](docs/CASE_STUDY.md)
@@ -109,6 +126,6 @@ CI checks Python unit tests and both evidence snapshots; the web workflow runs `
 
 ## Planned improvements
 
-Add a broader, independently reviewed task suite; collect and reconcile multiple human ratings; measure energy and GPU use with appropriate tools; capture streaming time to first token; and test repeatability across more hosts and runs. Any live hosted inference feature would require explicit cost approval, secret management, usage limits, and abuse controls.
+Collect independent human ratings for the expanded suite; measure energy and GPU use; capture streaming time to first token; test repeatability across more hosts; and confirm any Gemini free-tier project before a voluntary local run. Any live hosted inference feature would require explicit cost approval, secret management, usage limits, and abuse controls.
 
 Author: Nicholai Gay. The 2.0 implementation was completed with Codex assistance and should be reviewed as such.

@@ -1,5 +1,13 @@
 # Release progress and checks
 
+## Provider-independent workspace — 23 October 2026
+
+Added a versioned, official-source model catalogue for OpenAI, Anthropic, Google, xAI and Ollama; a central cross-provider workstation; an evidence-class index; a dry-run-first and free-tier-gated Gemini local adapter; paid-disabled Anthropic and xAI adapters; and a separate 12-prompt held-out Ollama v2 snapshot. The original v1 local snapshot and February GPT-4o-mini archive are preserved. [Provider methods](PROVIDER_METHODOLOGY.md) and [v2 results](RESULTS_LOCAL_V2_2026-10-23.md) record precise claims and limitations.
+
+Local release checks: **29 Python tests passed** using `.local/pytest-provider` as the temporary directory; archive, v1, v2, catalogue and evidence-index integrity validation passed; ESLint, TypeScript, **18 Vitest tests**, and the Vite production build passed. `npm audit --audit-level=high` reported **zero vulnerabilities**. The Gemini 12-task dry-run planned requests without a key and reported `networkRequests: 0`. No paid API requests were sent; Gemini was not executed.
+
+The local browser was inspected at 1440 px desktop and 390 px mobile. The browser verified xAI's 200k-token long-context tier and documented cache-read rate, and displayed recorded v2 Phi-3 responses with 10/12 completion and 3/6 objective checks. Genuine screenshots are in `assets/infernomics-provider-workspace-desktop.png` and `assets/infernomics-provider-workspace-mobile.png`. Deployment verification is recorded in the final handover.
+
 ## 2.0 pricing reference follow-up — 23 October 2026
 
 Added a versioned, official-source list-price catalog for OpenAI, Anthropic, and Google to the economics scenario. Visitors can compare hypothetical monthly token charges at one entered volume. Anthropic and Google are explicitly labeled as pricing-only references: no paid provider requests, responses, quality scores, or latency measurements were collected. The historical OpenAI archive and local Ollama results remain separate evidence classes. Prices require re-verification before future releases.

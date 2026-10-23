@@ -36,7 +36,7 @@ def save_observation(conn: sqlite3.Connection, observation: dict) -> None:
     conn.commit()
 
 
-def public_export(db_path: Path, output: Path, *, experiment_id: str) -> dict:
+def public_export(db_path: Path, output: Path, *, experiment_id: str, expected_dataset_version: str | None = None) -> dict:
     if not db_path.is_file():
         raise FileNotFoundError(db_path)
     with sqlite3.connect(f"file:{db_path.resolve().as_posix()}?mode=ro", uri=True) as conn:
@@ -44,6 +44,8 @@ def public_export(db_path: Path, output: Path, *, experiment_id: str) -> dict:
         if row is None:
             raise ValueError("Experiment not found")
         metadata = json.loads(row[0])
+        if expected_dataset_version is not None and metadata.get("datasetVersion") != expected_dataset_version:
+            raise ValueError("Experiment suite does not match the requested output")
         observations = [json.loads(r[0]) for r in conn.execute(
             "SELECT payload_json FROM observations WHERE experiment_id=? ORDER BY model,item_id,repetition", (experiment_id,))]
     public_observations = []

@@ -46,15 +46,18 @@ def run(dataset: Path, db: Path, *, models: list[str], split: str = "test", repe
               "contextTokens": context_tokens, "thinking": False, "template": "Ollama model chat template",
               "warmup": "one separate unmeasured chat request per model", "orderSeed": seed,
               "timeoutSeconds": timeout, "retries": 0}
+    versions = {"local_v1.jsonl": "local-v1-frozen-2026-10-23", "local_v2.jsonl": "local-v2-frozen-2026-10-23"}
+    if dataset.name not in versions:
+        raise ValueError("Only reviewed, versioned local suites may be run")
     metadata = {"schemaVersion": 2, "id": f"local-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:8]}",
-                "executedAt": datetime.now(timezone.utc).isoformat(), "datasetVersion": "local-v1-frozen-2026-10-23",
+                "executedAt": datetime.now(timezone.utc).isoformat(), "datasetVersion": versions[dataset.name],
                 "datasetSha256": digest, "split": split, "runtime": "Ollama", "runtimeVersion": adapter.version(),
                 "hardware": {"os": platform.system(), "architecture": platform.machine(),
                              "cpu": platform.processor() or "unavailable", "gpu": "not measured",
                              "memoryBytes": _physical_memory()},
                 "generation": config, "repetitions": repetitions, "models": model_meta,
                 "codeRevision": revision + ("+dirty" if dirty else ""), "protocol": "one user message; nonstreaming; randomized model order per prompt and repetition",
-                "limitations": "Single local host; no TTFT; tokenizers differ; no power or quality judge; small synthetic suite."}
+                "limitations": "Single local host; no TTFT; tokenizers differ; no power or quality judge; synthetic suite. Objective checks are narrow; subjective tasks await human review."}
     if dry_run:
         return {"metadata": metadata, "plannedMeasuredCalls": len(items) * repetitions * len(models), "warmupCalls": len(models)}
     with connect(db) as conn:

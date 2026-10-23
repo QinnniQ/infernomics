@@ -1,0 +1,57 @@
+import { useMemo, useState } from 'react'
+import { ArrowUpRight, Database, FlaskConical, Info, SlidersHorizontal } from 'lucide-react'
+import rawCatalog from '../data/model-catalog.v2.json'
+import rawLocalV1 from '../data/local-benchmark.json'
+import rawLocalV2 from '../data/local-v2-benchmark.json'
+import { estimateModelCost, validateCatalog, type Provider, type Workload } from '../lib/catalog'
+import { summarizeLocal, validateLocal } from '../lib/local'
+
+const catalog = validateCatalog(rawCatalog)
+const localV1 = validateLocal(rawLocalV1)
+const localV2 = validateLocal(rawLocalV2)
+const providers: (Provider | 'All')[] = ['All', 'OpenAI', 'Anthropic', 'Google', 'xAI', 'Ollama']
+const dollars = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: n < 1 ? 3 : 2 }).format(n)
+const compact = (n: number | null) => n === null ? 'Not stated' : new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(n)
+
+export function ProviderWorkspace() {
+  const [provider, setProvider] = useState<Provider | 'All'>('All')
+  const [selected, setSelected] = useState<string[]>(['gpt-4o-mini', 'claude-haiku-4-5-20251001', 'gemini-3.1-flash-lite', 'grok-4.6'])
+  const [workload, setWorkload] = useState<Workload>({ requests: 10000, inputTokens: 1000, outputTokens: 500, retryPercent: 0, cachedInputPercent: 0 })
+  const [inspected, setInspected] = useState('gpt-4o-mini')
+  const [suite, setSuite] = useState<'v2' | 'v1'>('v2')
+  const visible = catalog.models.filter(model => provider === 'All' || model.provider === provider)
+  const compared = catalog.models.filter(model => selected.includes(model.id))
+  const estimates = useMemo(() => compared.map(model => ({ model, estimate: estimateModelCost(model, workload) })), [compared, workload])
+  const maxCost = Math.max(0.001, ...estimates.map(row => row.estimate?.total ?? 0))
+  const focus = catalog.models.find(model => model.id === inspected) ?? catalog.models[0]
+  const measured = suite === 'v2' ? localV2 : localV1
+  const responseRows = focus.provider === 'Ollama' ? measured.observations.filter(row => row.model === focus.id) : []
+  const metric = responseRows.length ? summarizeLocal(responseRows) : null
+  const [responseItem, setResponseItem] = useState('')
+  const uniqueRows = [...new Map(responseRows.map(row => [row.itemId, row])).values()]
+  const response = responseRows.find(row => row.itemId === responseItem) ?? uniqueRows[0]
+  const setNumber = (key: keyof Workload, value: string, max = 10000000) => setWorkload(current => ({ ...current, [key]: Math.min(max, Math.max(0, Number(value) || 0)) }))
+  function toggle(id: string) {
+    setSelected(current => current.includes(id) ? current.filter(value => value !== id) : current.length < 5 ? [...current, id] : current)
+    setInspected(id)
+  }
+  return <section className="provider-workspace section" id="workspace"><div className="shell">
+    <div className="workstation-heading"><div><p className="section-kicker"><span />MODEL INTELLIGENCE / 2026.10</p><h2>One desk. Every provider.</h2><p>Compare published capabilities and list prices with actual recorded evidence. The labels below show precisely which claims have been measured.</p></div><div className="workstation-stamp"><span>CATALOGUE V2</span><strong>{catalog.verifiedOn}</strong><small>Official provider docs · USD text rates</small></div></div>
+    <div className="workstation-frame"><div className="workstation-toolbar"><div><FlaskConical size={17} /><strong>Comparison workspace</strong><span>{catalog.models.length} documented models</span></div><span className="workstation-offline"><i />STATIC · NO LIVE INFERENCE</span></div>
+      <div className="provider-tabs" role="group" aria-label="Filter by provider">{providers.map(name => <button key={name} type="button" className={provider === name ? 'active' : ''} onClick={() => setProvider(name)}>{name}</button>)}</div>
+      <div className="workspace-grid"><div className="workspace-models"><div className="workspace-subhead"><span>01 / SELECT MODELS</span><small>Up to five · {selected.length} selected</small></div>{visible.map(model => {
+        const rows = model.kind === 'local' ? localV2.observations.filter(row => row.model === model.id) : []
+        return <article className={`workspace-model ${selected.includes(model.id) ? 'selected' : ''}`} key={model.id}>
+          <label><input type="checkbox" checked={selected.includes(model.id)} onChange={() => toggle(model.id)} aria-label={`Compare ${model.name}`} /><span className="workspace-model-identity"><b>{model.name}</b><small>{model.provider} · <code>{model.id}</code></small></span></label>
+          <button type="button" className="workspace-inspect" onClick={() => setInspected(model.id)}>Inspect <ArrowUpRight size={13} /></button>
+          <div className="workspace-evidence">{rows.length ? <span className="evidence-measured">LOCAL MEASURED · n={rows.length}</span> : model.measurement === 'historical-archive-only' ? <span className="evidence-archive">HISTORICAL API ARCHIVE</span> : <span className="evidence-spec">PUBLISHED SPEC ONLY</span>}{model.freeTierEligible && <span className="evidence-free">FREE TIER LISTED</span>}</div>
+        </article>
+      })}</div>
+      <div className="workspace-analysis"><div className="workspace-subhead"><span>02 / MODEL A WORKLOAD</span><small>Hypothetical inputs</small></div><div className="workspace-inputs"><label>Requests / month<input type="number" min="0" value={workload.requests} onChange={e => setNumber('requests', e.target.value)} /></label><label>Input tokens / request<input type="number" min="0" value={workload.inputTokens} onChange={e => setNumber('inputTokens', e.target.value)} /></label><label>Output tokens / request<input type="number" min="0" value={workload.outputTokens} onChange={e => setNumber('outputTokens', e.target.value)} /></label><label>Extra retries %<input type="number" min="0" max="100" value={workload.retryPercent} onChange={e => setNumber('retryPercent', e.target.value, 100)} /></label><label>Cached input %<input type="number" min="0" max="100" value={workload.cachedInputPercent} onChange={e => setNumber('cachedInputPercent', e.target.value, 100)} /></label></div>
+        <div className="workspace-chart"><div className="workspace-subhead"><span>03 / ESTIMATED MONTHLY API COST</span><SlidersHorizontal size={15} /></div>{estimates.length ? estimates.map(({ model, estimate }) => <div className="workspace-bar" key={model.id}><div><span>{model.name}<small>{model.provider}</small></span><strong>{estimate ? dollars(estimate.total) : model.kind === 'local' ? '$0 API fee*' : 'Outside limits'}</strong></div><div className="workspace-bar-track" role="img" aria-label={`${model.name}: ${estimate ? dollars(estimate.total) : model.kind === 'local' ? 'zero provider API fee, operating costs unknown' : 'workload outside documented limits'}`}><i style={{ width: `${estimate ? Math.max(1.5, estimate.total / maxCost * 100) : 0}%` }} /></div>{estimate?.longContext && <small>xAI long-context tier applied</small>}</div>) : <p>Select a model to compare documented rates.</p>}</div>
+        <p className="workspace-assumptions"><Info size={14} /> Same entered token counts are assumed for each provider; tokenizers differ. Gemini bars use its paid-tier rates, while eligible free-tier projects are listed as free of charge. Cache discounts apply only where an official read rate is recorded; zero cache is the default. Retries consume full input and output by assumption. Tools, cache writes, batch, tax, regional premiums, hardware and electricity are excluded. *Local Ollama has no provider API fee; full operating cost is unknown.</p>
+      </div></div>
+      <div className="workspace-detail"><div className="workspace-subhead"><span>04 / EVIDENCE INSPECTOR</span><small>Selected: {focus.provider}</small></div><div className="workspace-detail-grid"><div><h3>{focus.name}</h3><code>{focus.id}</code><p>{focus.note}</p><dl><div><dt>Context</dt><dd>{compact(focus.contextTokens)} tokens</dd></div><div><dt>Max output</dt><dd>{compact(focus.maxOutputTokens)} tokens</dd></div><div><dt>Input → output</dt><dd>{focus.inputModalities.join(', ')} → {focus.outputModalities.join(', ')}</dd></div><div><dt>Standard input / output</dt><dd>{focus.pricing ? `${dollars(focus.pricing.input)} / ${dollars(focus.pricing.output)} per 1M` : 'No provider API fee; host costs unknown'}</dd></div>{focus.pricing && <div><dt>Cached input read</dt><dd>{focus.pricing.cachedInput === null ? 'No rate recorded; scenario ignores cache share' : `${dollars(focus.pricing.cachedInput)} / 1M`}</dd></div>}{focus.pricing?.thresholdTokens && <div><dt>Long-context threshold</dt><dd>≥{compact(focus.pricing.thresholdTokens)} input tokens · {dollars(focus.pricing.longInput!)} / {dollars(focus.pricing.longOutput!)} per 1M</dd></div>}<div><dt>Execution</dt><dd>{focus.execution === 'disabled' ? 'Paid API execution disabled' : focus.execution === 'local-opt-in-only' ? 'Local free-tier opt-in only' : 'Manual local run only'}</dd></div></dl><div className="workspace-sources">{focus.sources.map(source => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.claim} <ArrowUpRight size={13} /><small>Verified {source.verifiedOn}</small></a>)}</div></div><div className="workspace-response"><div><Database size={16} /><strong>{focus.provider === 'Ollama' ? 'Recorded response' : 'Measurement status'}</strong></div>{focus.provider === 'Ollama' ? <>{localV2.experiment && <label>Evaluation suite<select value={suite} onChange={e => { setSuite(e.target.value as 'v1' | 'v2'); setResponseItem('') }}><option value="v2">Expanded v2 · 12 held-out prompts</option><option value="v1">Original v1 · 6 held-out prompts</option></select></label>}{metric ? <><p>{metric.completed}/{metric.attempts} completed · objective checks {metric.passed}/{metric.assessed} · median completed wall time {metric.medianLatency?.toFixed(0) ?? '—'} ms (n={metric.latencyN}). Manual tasks are unscored.</p><label>Prompt<select value={response?.itemId ?? ''} onChange={e => setResponseItem(e.target.value)}>{uniqueRows.map(row => <option key={row.itemId} value={row.itemId}>{row.category} · {row.itemId}</option>)}</select></label><p className="workspace-prompt">{response?.prompt}</p><pre>{response?.response ?? 'No recorded response.'}</pre><small>{response?.status} · {response?.evaluation.reason}</small></> : <p>No published measurement for this suite. The original v1 archive remains available below.</p>}</> : focus.measurement === 'historical-archive-only' ? <p>February 2026 GPT-4o-mini responses are preserved in the historical archive below. Those runs used different prompts and infrastructure from the local suite; they cannot support a cross-provider latency ranking.</p> : <p>No Infernomics response, latency, quality or throughput measurement exists for this model. Its price, identifier and capability claims come from official documentation. Scenario costs are calculations, not observations.</p>}</div></div></div>
+    </div><p className="workstation-foot">Catalogue {catalog.catalogVersion} · Models and prices can change. The public app sends no provider requests and stores no credentials. <a href="https://github.com/QinnniQ/infernomics/blob/main/docs/PROVIDER_METHODOLOGY.md">Read evidence and pricing methods <ArrowUpRight size={14} /></a></p>
+  </div></section>
+}
