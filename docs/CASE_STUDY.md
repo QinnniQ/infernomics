@@ -1,5 +1,15 @@
 # Engineering case study: Infernomics
 
+## 2.0 extension — October 2026
+
+The original case study below explains the 1.0 API archive. The 2.0 extension adds a **separate** local Ollama experiment rather than reinterpreting those historical API measurements. The product question is now which model and setting fit a particular workload across task outcome, completion, latency, and cost assumptions.
+
+The new held-out study ran two installed model families, `phi3:latest` and `gemma3:latest`, on six synthetic prompts with two repetitions. Each completed 10/12 attempts and passed 2/6 narrow objective checks. Both extraction responses wrapped otherwise matching JSON fields in Markdown fences, and both arithmetic responses were incorrect. Subjective tasks remain unscored. These are specific observations on one host, not an overall quality ranking. [Verified results](RESULTS_2026-10-23.md) provide model digests and denominators.
+
+The design changed in three important ways: (1) a localhost-only adapter and manual runner capture artifact digests, dataset hash, generation settings, warmups, shuffled execution order, and separate client/server timings; (2) an append-only ignored SQLite store and read-only publication gate reject mismatched prompts, missing coverage, and corrupt metrics; (3) a dark React comparison view shows matched raw responses and objective rationale while the 60-attempt API archive stays explicit. The public site still runs no inference. Local electricity is unavailable until power and tariff assumptions are entered. [Local methodology](LOCAL_METHODOLOGY.md), [baseline audit](BASELINE_AUDIT_2026-10-23.md), and [architecture in the README](../README.md#architecture) describe the tradeoffs.
+
+### Original 1.0 archive case study
+
 ## Problem
 
 Cost, latency, completion, and answer quality all matter when selecting an LLM configuration. The original repository collected useful Python experiments but presented archived CSVs in a Streamlit dashboard with unsupported cost and quality comparisons. A portfolio visitor had no fast way to inspect the underlying responses or understand what had actually been measured.

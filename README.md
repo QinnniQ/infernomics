@@ -1,42 +1,51 @@
 # Infernomics
 
-Infernomics is a static decision desk for inspecting archived LLM inference runs. It connects measured latency and token use to a clearly labeled cost estimate, then shows the exact responses behind each point. The first public snapshot has **one model and three output-token settings**, so it supports a configuration comparison, not a cross-model recommendation.
+**Every token has a cost. Every model has a trade-off.** Infernomics is a static, inspectable decision desk for AI inference experiments. It puts matched model responses, task-specific checks, timing, completion, and cost assumptions beside the evidence that produced them.
 
-- **Live site:** [infernomics.nickcloud.dev](https://infernomics.nickcloud.dev/) ([Cloudflare Pages URL](https://infernomics.pages.dev/))
-- **Source repository:** https://github.com/QinnniQ/infernomics
-- **Status:** deployed on Cloudflare Pages; the custom domain and served app HTML were verified on 15 October 2026.
+[Live site](https://infernomics.nickcloud.dev/) · [Engineering portfolio](https://profile.nickcloud.dev/) · [Case study](docs/CASE_STUDY.md) · [Local methodology](docs/LOCAL_METHODOLOGY.md)
 
-[Nicholai Gay's AI engineering portfolio](https://profile.nickcloud.dev/) · [LinkedIn](https://www.linkedin.com/in/nicholai-gay-201905148/)
+![Infernomics 2.0 desktop overview showing local completion evidence](assets/infernomics-2-overview.jpg)
 
-![Infernomics website homepage with navigation, evidence-led headline, and published benchmark snapshot](assets/infernomics-website.png)
+*Locally captured 2.0 build, 23 October 2026. The live production site may still serve the previous version until a new Cloudflare deployment completes.*
 
-*The deployed Infernomics homepage, October 2026.*
+## What the evidence supports
 
-## What is available
+- **Local multi-model study:** one held-out six-prompt suite, two repetitions per prompt, and two already installed Ollama models from different families. Exact responses and deterministic scoring rationale are public in the versioned static snapshot.
+- **Historical API archive:** 60 GPT-4o-mini attempts from February 2026 on the same 20 prompts under output caps of 50, 100, and 200 tokens. **28 ended incomplete** at the cap (14, 10, and 4 respectively). The archive is preserved as a separate evidence class.
+- **Economics:** hosted USD list-price calculations from recorded or user-entered token counts; local API fee is zero but electricity and hardware remain unknown until a visitor supplies assumptions. This is a scenario tool, not an invoice or production forecast.
 
-- Explore three real chat sweep runs (60 attempts) from 18 February 2026 with filterable and sortable results, a chart, accessible table, run details, and shareable URL parameters.
-- Compare two or three matched runs side by side for the same prompt. The controlled setting is the maximum output-token cap (50, 100, 200).
-- Estimate monthly USD text-token spend at an official price checked on 15 October 2026. The app performs no provider calls.
-- Inspect the methodology and limitations in the UI and in this README.
+The local test is small and synthetic. It demonstrates a controlled methodology and specific model behavior, **not** a universal “best model.” The February API timings cannot be ranked against the local Ollama timings because the hardware, network, prompts, and measurement boundaries differ. Completion is not correctness; subjective answers await human review.
 
-The saved OpenAI Responses API records resolve `gpt-4o-mini` to `gpt-4o-mini-2024-07-18`. Of the 60 attempts, 28 returned `status=incomplete` with reason `max_output_tokens`: 14/20 at cap 50, 10/20 at cap 100, and 4/20 at cap 200. The runner did not count these as transport errors. Infernomics distinguishes **completed**, **incomplete**, and **error** outcomes. It reports median latency only for completed responses, with its sample count. Mean estimated cost uses all attempts with recorded token use because incomplete responses can still consume tokens.
+![Matched local model responses and per-attempt measurements](assets/infernomics-2-compare.jpg)
+
+## Verified local experiment
+
+On 23 October 2026, `phi3:latest` and `gemma3:latest` each handled six held-out prompts twice. Both completed 10 of 12 attempts, with two output-limit incompletions and no transport errors. Both passed 2 of 6 objective checks; the other six attempts per model were subjective and unscored. Median client wall time among completed attempts was **12,334 ms** for Phi-3 and **26,067 ms** for Gemma 3 (n=10 each). Median Ollama generation throughput was 6.9 and 8.8 model-specific tokens/s respectively (n=10 each). These figures describe this host and protocol, not general deployment performance.
+
+The strict extraction check rejected Markdown-fenced JSON even where the fields inside were correct; the requested output was JSON only. Both models answered the arithmetic test incorrectly. The business task reached the 128-token cap in both repetitions for both models. [Results and limitations](docs/RESULTS_2026-10-23.md) document the experiment ID, artifact digests, denominators, and source-tree caveat.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  P[Python benchmark scripts] -->|paid, manual runs| O[(Local SQLite archive)]
-  O -->|validated, read-only export| J[Versioned JSON snapshot]
-  J --> R[React + TypeScript static app]
-  R -->|static assets| C[Cloudflare Pages]
-  S[Official price source] -->|dated list-price values| J
+  D[Versioned synthetic suite] --> C[Manual Python CLI]
+  C --> O[Localhost Ollama models]
+  O --> M[Measurements and task checks]
+  M --> S[(Ignored SQLite store)]
+  S --> V[Read-only validation and allowlisted export]
+  V --> J[Versioned local JSON]
+  A[February API archive] --> H[Separate historical JSON]
+  J --> R[React and TypeScript static app]
+  H --> R
+  R --> P[Cloudflare Pages]
+  P --> U[Public visitors: read-only]
 ```
 
-The public path is static and needs no runtime secret, database, worker, or paid inference. Python and SQLite stay in the offline benchmark workflow. The exporter reads the ignored local database, verifies matching prompts and response settings, and writes only public fields to `web/src/data/benchmark.json`. It excludes raw provider response metadata and the archived `cost_estimate` field.
+The public app has no inference backend, database service, visitor API key, or billable compute endpoint. `src/icp/local_benchmark/adapter.py` defines the provider-neutral adapter contract and implements only the local Ollama HTTP path. `runner.py` records the model digest, settings, dataset hash, host profile, run order, and observations. `evaluation.py` applies narrow objective checks. `store.py` maintains append-only local records and refuses malformed publication. `web/src/lib/local.ts` validates the bundled snapshot and computes transparent summaries; `web/src/components/LocalComparison.tsx` renders model selection, completion chart, and matched responses. The original API scripts and archive remain separate.
 
-## Run locally
+## Run the website locally
 
-Requirements: Node.js 22 or newer; Python 3.13 for the pinned benchmark environment. The core Python package declares 3.10+, but this lockfile was verified on 3.13 only.
+Node.js 22 or newer is recommended. The committed snapshot works without Python, Ollama, or API keys.
 
 ```powershell
 cd web
@@ -44,80 +53,61 @@ npm ci
 npm run dev
 ```
 
-Open the URL Vite prints. A fresh checkout needs no API key or SQLite database because the audited JSON snapshot is committed. For a release build:
+For release checks from `web`:
 
 ```powershell
-cd web
-npm ci
 npm run lint
 npm run typecheck
 npm test
 npm run build
 ```
 
-`web/dist` is the deployable output. The app has no environment variables. Its data and prices are intentionally versioned at build time; refresh them through review and redeploy, then update the visible verification date.
+`web/dist` is the static deployment output. The existing Cloudflare Pages integration uses `web` as root, `npm run build`, and `dist` as output. It requires no new service or environment variable. Publishing still requires reviewing and deploying the new build; local success alone does not prove the live domain is updated.
 
-## Data provenance and calculations
+## Run the local benchmark
 
-The source archive is `outputs/results.sqlite`, ignored by Git. Three run IDs are published in the JSON and run detail UI. All 20 prompts match `data/eval_sets/chat_prompts.jsonl` in order; the export includes its SHA-256 hash. Each published item retains the prompt, response, index, token counts, request latency, completion status, and any incomplete reason. The archived records do **not** contain a reliable price source, prompt-template version, full generation settings, retry count, or code commit for the February execution. Four older chat runs also lack a recorded output cap and are intentionally excluded.
+Ollama must be installed and running on the same Windows machine. The tested host had 16.85 GB RAM, about 58.6 GB free disk, and two models already present: `phi3:latest` (2.2 GB) and `gemma3:latest` (3.3 GB). The command **never pulls models**. Check memory and disk before optionally installing other model tags. Local execution still uses electricity, storage, and CPU/GPU resources.
 
-The elapsed latency was measured with `time.perf_counter()` immediately around `client.responses.create()`, so it includes network and service time. It is **end-to-end SDK call wall time**, not time to first token. The median is calculated only across completed responses; the displayed `n` makes that denominator explicit. No p95 is shown for this small sample.
-
-There was **no chat quality evaluation** for these runs. Completion is not a quality score. The separately archived RAG judge CSV is retained locally but omitted from the public comparison: it evaluates a different task and stores only aggregate results with weaker provenance. There is no universal best-model score or quality threshold recommendation.
-
-Estimated request cost = `(recorded input tokens × input list price + recorded output tokens × output list price) / 1,000,000`. Monthly estimate multiplies that expression by the entered request count; “per day” uses 30 days. The current `gpt-4o-mini` standard text price is **$0.15 input / $0.60 output per million tokens**, checked 15 October 2026 from [official OpenAI documentation](https://developers.openai.com/api/docs/models/gpt-4o-mini). This is a **current USD list-price estimate**, not a reconstruction of 2026-02 invoices. Caching, batch discounts, tax, tools, retries, and other charges are excluded. The legacy Python pricing table contains approximate EUR values and must not be confused with the published USD estimates.
-
-## Reproduce or extend benchmark work
-
-The public app never runs paid inference. The original Python scripts remain for local experimentation. They require an OpenAI API key and can incur charges; check current model availability and prices before use. The model used in this archive is marked deprecated in [official OpenAI documentation](https://developers.openai.com/api/docs/models/gpt-4o-mini).
+From the repository root in PowerShell:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.lock.txt
-pip install -e . --no-deps
-Copy-Item .env.example .env
-# Put your own OPENAI_API_KEY in .env; never commit it.
-python scripts/run_sweep.py
-python scripts/export_public_benchmark.py
+ollama list
+$env:PYTHONPATH = (Resolve-Path .\src).Path
+python scripts/run_local_benchmark.py --dry-run
+python scripts/run_local_benchmark.py --models phi3:latest gemma3:latest --split test --repetitions 2 --max-output-tokens 128
 ```
 
-`run_sweep.py` uses the 20 prompts in `data/eval_sets/chat_prompts.jsonl` and caps `[50, 100, 200]`. It now records the dataset and runner file hashes in new run metadata; the February archive cannot be retroactively enriched. The exporter is intentionally pinned to exactly one run per cap in the local archive and will refuse an ambiguous or mismatched database. For a new dataset or model, update the exporter, inspect status and provenance, then publish a new reviewed snapshot. Do not overwrite the included historical result with generated examples.
+The last command prints an experiment ID and writes `.local/benchmarks.sqlite`, which Git ignores. Inspect the observations, then publish a **specific** held-out experiment into static JSON:
 
-The legacy RAG and caching scripts are exploratory. The Streamlit dashboard (`streamlit_app.py`) remains in the repository as an archive viewer; its old cost labels and CSV summaries are **not** the published evidence or release UI.
+```powershell
+python scripts/run_local_benchmark.py --export-id YOUR_EXPERIMENT_ID
+python scripts/validate_public_data.py
+python scripts/manual_review.py --experiment-id YOUR_EXPERIMENT_ID
+```
 
-The earlier Python experiment guide, including its screenshot interpretation and limitations, is preserved in [Legacy experiments](docs/LEGACY_EXPERIMENTS.md). Its [synthetic offline fixture](examples/sample_topk_fixture.json) can still be regenerated with `python scripts/reproduce_sample.py`; it is not part of the measured web snapshot.
+The manual review sheet is private under `.local/reviews/`. Fill all rubric fields, reviewer ID, and rationale; then run `python scripts/manual_review.py --validate .local/reviews/manual-review.jsonl`. These ratings are not currently published. For a different small model family, verify its [tag, size, and license](docs/LOCAL_METHODOLOGY.md), explicitly install it yourself, and pass its exact installed tag to `--models`. No paid provider is used by this path.
 
-## Cloudflare Pages deployment
+The legacy `scripts/run_sweep.py` invokes the OpenAI API and **can incur charges**. Do not run it as part of this local quickstart or CI. Its archive exporter remains available to verify the February SQLite source when that ignored database is present.
 
-The site is deployed from the `main` branch to [infernomics.nickcloud.dev](https://infernomics.nickcloud.dev/) through Cloudflare Pages Git integration. Cloudflare's [React Pages guide](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/) specifies `npm run build` and `dist`; the [Pages pricing documentation](https://developers.cloudflare.com/pages/functions/pricing/) says static asset requests are free and unlimited on both free and paid plans. The release uses only static Pages hosting. Python's OpenAI, NumPy, SQLite, and local file workloads stay outside request handling. Cloudflare's [Pages limits](https://developers.cloudflare.com/pages/platform/limits/) currently include 500 builds/month on Free, 20,000 files per site, and 25 MiB per asset; this build is well below the file and size limits.
+## Methods, cost safeguards, and limits
 
-Current Git integration settings:
+- The 18-item synthetic suite is split into development, calibration, and test sets (six items per split across six categories). The held-out test was frozen on 23 October 2026. Benchmark evaluation is not model training or fine-tuning.
+- Ollama reports nanosecond load, prompt, and generation durations and token counts. The Python client independently measures end-to-end wall time. Nonstreaming calls provide **no time to first token**. Throughput uses Ollama's output token count divided by Ollama's generation duration.
+- Completed-only latency has an explicit sample count next to incomplete and error counts. Missing data stays null; p95 is withheld at this sample size. Model tokenizers differ.
+- Exact, bare-integer, and typed-JSON scoring rules are inspectable. Subjective summaries, technical explanations, and business tasks have review rubrics but no automatic quality score. Strict formats can reject otherwise semantically useful text.
+- Hosted costs use the [OpenAI GPT-4o-mini USD standard text list price](https://developers.openai.com/api/docs/models/gpt-4o-mini) recorded as $0.15 input / $0.60 output per million tokens, checked 15 October 2026. The model is a legacy price reference, not a claim about the February invoices. No caching, batch discount, tax, tool charge, or tokenization difference is built into that price.
+- The local cost scenario asks for power draw, electricity tariff, optional hardware cost, and amortization period. It does not infer ownership or operational cost. The break-even calculation is illustrative and leaves unmeasured costs out explicitly.
 
-| Setting | Value |
-| --- | --- |
-| Repository | `QinnniQ/infernomics` |
-| Root directory | `web` |
-| Build command | `npm run build` (Pages installs from the lockfile) |
-| Output directory | `dist` |
-| Environment variables | None |
+[Detailed local methodology](docs/LOCAL_METHODOLOGY.md) · [Baseline audit](docs/BASELINE_AUDIT_2026-10-23.md) · [Legacy experiments](docs/LEGACY_EXPERIMENTS.md) · [Original case study](docs/CASE_STUDY.md)
 
-`web/wrangler.toml` names the Pages project and its `dist` output. Cloudflare built commit `58020f7` with Node.js 22.16.0 and reported a successful deployment. The `*.pages.dev` URL and custom domain returned HTTP 200; public DNS resolved the custom domain, and its HTML contained the expected Infernomics title and app assets. These checks verify delivery, not every browser interaction. No deployment credentials are stored here. Pushes to `main` trigger a new Pages build. Roll back in Cloudflare Pages by selecting the previous successful deployment, or revert the Git commit and redeploy. Because data is bundled with the build, rolling back code also rolls back the data snapshot and displayed price verification date.
+## Tests and release
 
-**No live inference is exposed.** If it is ever added, it needs server-side credentials, input/output bounds, rate and concurrency limits, timeouts, usage logs that exclude submitted prompts by default, an operational disable switch, and provider-side spending alerts. Application counters alone cannot guarantee a hard cap under concurrent traffic or delayed provider reporting.
+CI checks Python unit tests and both evidence snapshots; the web workflow runs `npm audit`, lint, TypeScript, Vitest, and the production build. It never downloads weights or performs inference. The repository also includes small local tests for scorers, the adapter, export rejection, statistics, and economics. Desktop and 390-pixel mobile browser views were inspected against a local Vite build, including model response selection, archive filtering and URL state, and scenario inputs. See [release notes](docs/RELEASE_NOTES.md) for exact check results and remaining limits.
 
-## Verification and limits
+![Infernomics 2.0 mobile overview](assets/infernomics-2-mobile.jpg)
 
-CI runs lint, TypeScript checking, tests, and a production build. Unit tests cover snapshot validation, median, pricing, filtering, comparison compatibility, and incomplete counts. The public site has keyboard-focus styles, semantic controls, chart text alternatives, a results table, and reduced-motion support. See `docs/RELEASE_NOTES.md` for recorded local check results and remaining work.
+## Planned improvements
 
-The existing [Python test workflow](.github/workflows/tests.yml) checks the benchmark and pricing paths separately.
+Add a broader, independently reviewed task suite; collect and reconcile multiple human ratings; measure energy and GPU use with appropriate tools; capture streaming time to first token; and test repeatability across more hosts and runs. Any live hosted inference feature would require explicit cost approval, secret management, usage limits, and abuse controls.
 
-The current evidence does **not** answer “which LLM is best” across providers: one model, a small nonrepresentative prompt set, missing quality scores, and incomplete generation controls preclude that claim. It does show why cost and latency alone are insufficient when a low output limit truncates many responses.
-
-## Portfolio materials
-
-- [Engineering case study](docs/CASE_STUDY.md)
-- [Demo script and verified CV/LinkedIn copy](docs/PORTFOLIO.md)
-- [Release checks and progress](docs/RELEASE_NOTES.md)
-
-Author: Nicholai Gay.
+Author: Nicholai Gay. The 2.0 implementation was completed with Codex assistance and should be reviewed as such.

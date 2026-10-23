@@ -1,5 +1,15 @@
 # Release progress and checks
 
+## 2.0 local build — 23 October 2026
+
+This is a **local implementation and verification**, not a claim that the Cloudflare production domain has been redeployed. The historical 60-attempt archive stayed intact. A new local Ollama experiment recorded 24 attempts across `phi3:latest` and `gemma3:latest`; the validated static export is `web/src/data/local-benchmark.json`. Both models completed 10/12 attempts and passed 2/6 strict objective checks. See [results](RESULTS_2026-10-23.md) for interpretation and [methodology](LOCAL_METHODOLOGY.md) for the controls.
+
+Checks on the working tree: Python 3.13 virtual environment **25 tests passed**; the existing coverage gate reported **95.43%** across its five legacy modules. The new local module tests also passed. Public archive and local export integrity validation passed. Web lint, TypeScript, **13 Vitest tests**, and Vite production build passed. After updating Vitest to 5.0.5, `npm audit --audit-level=high` reported **0 vulnerabilities**. The desktop and 390 px mobile local browser views were inspected. Automated browser interactions checked matched prompt selection and actual outputs, archive filter/URL state, and retry/energy scenario calculations. Genuine local screenshots are in `assets/infernomics-2-*.jpg`. No new performance or accessibility score was fabricated.
+
+The local run used Ollama 0.15.6 with two already installed artifacts, avoiding model downloads and paid inference. It did consume local compute, electricity, and storage. Public deployment, cross-host replication, independent human review, measured power/GPU use, and streaming TTFT remain outstanding. The experiment's recorded Git SHA is its base commit; the source tree was dirty during execution. A future run will mark dirty state explicitly.
+
+## Original 1.0 release record (15 October 2026)
+
 ## Milestones
 
 1. **Audit complete:** seven chat runs / 140 items located; three documented sweep runs selected; four runs with missing cap excluded. No Git-tracked `.env` or database found. Raw archive is ignored. Old price and quality claims were reviewed.

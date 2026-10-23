@@ -3,11 +3,18 @@ import { createRoot } from 'react-dom/client'
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, CircleHelp, Clock3, Coins, ExternalLink, Github, Layers3, Menu, ShieldCheck, SlidersHorizontal, X } from 'lucide-react'
 import rawData from './data/benchmark.json'
 import { compatibleRuns, estimateCost, filterRuns, formatMicroUSD, formatMs, monthlyCost, sortRuns, summarize, validateBenchmark, type Filters } from './lib/benchmark'
+import { LocalComparison } from './components/LocalComparison'
+import { EconomicsScenario } from './components/EconomicsScenario'
+import { Methodology } from './components/Methodology'
+import rawLocal from './data/local-benchmark.json'
+import { summarizeLocal, validateLocal } from './lib/local'
 import './styles.css'
+import './research.css'
 
 const snapshot = (() => { try { return validateBenchmark(rawData) } catch { return null } })()
 const runs = snapshot ? [...snapshot.runs].sort((a, b) => a.maxOutputTokens - b.maxOutputTokens) : []
 const pricing = snapshot?.pricing
+const localSnapshot = (() => { try { return validateLocal(rawLocal) } catch { return null } })()
 const repo = 'https://github.com/QinnniQ/infernomics'
 const initial = new URLSearchParams(window.location.search)
 
@@ -63,6 +70,10 @@ function App() {
   const monthlyRequests = frequency === 'day' ? requests * 30 : requests
   const costs = monthlyCost(monthlyRequests, inputTokens, outputTokens, pricing)
   const detail = runs.find(run => run.id === detailId)
+  const archiveAttempts = runs.reduce((total, run) => total + run.items.length, 0)
+  const archiveIncomplete = runs.reduce((total, run) => total + run.items.filter(item => item.status === 'incomplete').length, 0)
+  const localExperiment = localSnapshot?.experiment
+  const localRows = localSnapshot?.observations ?? []
 
   useEffect(() => {
     const id = decodeURIComponent(window.location.hash.slice(1))
@@ -108,9 +119,9 @@ function App() {
         <a className="brand" href="#top" aria-label="Infernomics home"><IconMark /><span>infernomics<span className="brand-dot">.</span></span></a>
         <button className="mobile-menu" type="button" aria-label={mobileNav ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileNav} onClick={() => setMobileNav(!mobileNav)}>{mobileNav ? <X size={21} /> : <Menu size={21} />}</button>
         <nav className={mobileNav ? 'nav-links open' : 'nav-links'} aria-label="Primary">
-          <a href="#explorer" onClick={() => setMobileNav(false)}>Explorer</a>
-          <a href="#comparison" onClick={() => setMobileNav(false)}>Compare</a>
-          <a href="#calculator" onClick={() => setMobileNav(false)}>Cost calculator</a>
+          <a href="#models" onClick={() => setMobileNav(false)}>Compare models</a>
+          <a href="#explorer" onClick={() => setMobileNav(false)}>Historical archive</a>
+          <a href="#calculator" onClick={() => setMobileNav(false)}>Economics</a>
           <a href="#methodology" onClick={() => setMobileNav(false)}>Methodology</a>
         </nav>
         <a className="header-github" aria-label="Source code on GitHub" href={repo} target="_blank" rel="noreferrer"><Github size={17} /><span>Source code</span><ArrowUpRight size={14} /></a>
@@ -121,31 +132,39 @@ function App() {
       <section className="hero shell" id="top">
         <div className="hero-copy">
           <div className="eyebrow"><span className="eyebrow-pulse" />THE INFERENCE DECISION DESK<span className="eyebrow-rule" />OPEN BENCHMARK DATA</div>
-          <h1>Better model decisions <em>start with evidence.</em></h1>
-          <p className="hero-lead">Explore real inference runs, inspect what was measured, and estimate the cost of your workload. Every number has a source. Every limitation is visible.</p>
-          <div className="hero-actions"><a className="button button-primary" href="#explorer">Explore benchmarks <ArrowRight size={18} /></a><a className="button button-text" href="#methodology">How it works <ArrowDownRight size={18} /></a></div>
+          <h1>Every token has a cost. <em>Every model has a trade-off.</em></h1>
+          <p className="hero-lead">Compare measured model behavior, inspect individual responses, and explore the economics behind inference decisions. Each conclusion stays within its evidence.</p>
+          <div className="hero-actions"><a className="button button-primary" href="#models">Compare models <ArrowRight size={18} /></a><a className="button button-text" href="#methodology">Explore methodology <ArrowDownRight size={18} /></a></div>
           <div className="hero-proof"><ShieldCheck size={17} /><span>Saved measurements · No account · No live API calls</span></div>
         </div>
-        <div className="hero-panel" aria-label="Benchmark snapshot overview">
-          <div className="panel-top"><span><span className="live-dot" />PUBLISHED SNAPSHOT</span><span>01 / 03</span></div>
+        {localExperiment ? <div className="hero-panel local-hero" aria-label="Local model comparison overview">
+          <div className="panel-top"><span><span className="live-dot" />LOCAL MODEL STUDY</span><span>MEASURED / TEST</span></div>
+          <div className="panel-heading"><span>One protocol. Two models.</span><span className="panel-tag">OLLAMA · LOCAL</span></div>
+          <div className="panel-sub">{localExperiment.datasetVersion} · {localExperiment.repetitions} repetitions per prompt</div>
+          <div className="panel-chart-title"><span>Completed attempts</span><span>ALL ATTEMPTS IN DENOMINATOR</span></div>
+          <div className="hero-bars">{localExperiment.models.map(model => { const s = summarizeLocal(localRows.filter(row => row.model === model.id)); return <div className="hero-bar-row" key={model.id}><span>{model.id}</span><div className="hero-bar-track"><div style={{ width: `${s.attempts ? s.completed / s.attempts * 100 : 0}%` }} /></div><strong>{s.completed}/{s.attempts}</strong></div> })}</div>
+          <div className="panel-foot"><span>Objective checks and responses are inspectable below</span><span>{localRows.length} attempts</span></div>
+        </div> : <div className="hero-panel" aria-label="Historical benchmark snapshot overview">
+          <div className="panel-top"><span><span className="live-dot" />HISTORICAL SNAPSHOT</span><span>ARCHIVE / 2026</span></div>
           <div className="panel-heading"><span>GPT-4o mini</span><span className="panel-tag">CHAT · FEB 2026</span></div>
-          <div className="panel-sub">One model, three output limits, identical prompts.</div>
+          <div className="panel-sub">One model, {runs.length} output limits, identical prompts.</div>
           <div className="panel-chart-title"><span>Median end-to-end latency</span><span>LOWER IS BETTER ↓</span></div>
           <div className="hero-bars">
             {runs.map(run => { const s = summarize(run, pricing); return <div className="hero-bar-row" key={run.id}><span>{run.maxOutputTokens} tokens</span><div className="hero-bar-track"><div style={{ width: `${Math.max(9, (s.medianLatency || 0) / 2300 * 100)}%` }} /></div><strong>{formatMs(s.medianLatency)}</strong></div> })}
           </div>
-          <div className="panel-foot"><span>Completed only · n = 6 / 10 / 16</span><span>20 prompts / setting</span></div>
-        </div>
+          <div className="panel-foot"><span>Completed only · n = {runs.map(run => summarize(run, pricing).latencySample).join(' / ')}</span><span>{runs[0]?.items.length ?? 0} prompts / setting</span></div>
+        </div>}
       </section>
 
       <section className="insight-strip"><div className="shell insight-inner">
-        <div><span className="insight-icon"><Layers3 size={18} /></span><span><strong>3 comparable configurations</strong><small>Same model and 20 prompt set</small></span></div>
-        <div><span className="insight-icon"><Clock3 size={18} /></span><span><strong>60 recorded attempts</strong><small>28 ended at the output cap</small></span></div>
+        <div><span className="insight-icon"><Layers3 size={18} /></span><span><strong>{localExperiment ? localExperiment.models.length + ' local models' : runs.length + ' archive configurations'}</strong><small>{localExperiment ? 'Matched held-out prompts' : 'Same model and prompt set'}</small></span></div>
+        <div><span className="insight-icon"><Clock3 size={18} /></span><span><strong>{archiveAttempts} archived attempts</strong><small>{archiveIncomplete} ended at the output cap</small></span></div>
         <div><span className="insight-icon"><Coins size={18} /></span><span><strong>Transparent cost estimates</strong><small>Current USD list price, no discounts</small></span></div>
       </div></section>
 
+      <LocalComparison />
       <section className="section shell" id="explorer">
-        <div className="section-head"><div><SectionKicker>01 / BENCHMARK EXPLORER</SectionKicker><h2>Explore the evidence.</h2><p>Filter recorded runs, inspect their observations, and see where the trade-offs come from.</p></div><div className="section-side">DATA RECORDED <strong>18 FEB 2026</strong><span>Pricing checked 15 Oct 2026</span></div></div>
+        <div className="section-head"><div><SectionKicker>02 / HISTORICAL API ARCHIVE</SectionKicker><h2>Explore the original evidence.</h2><p>Filter recorded GPT-4o-mini runs and see how output limits changed completion. This archive is separate from local model measurements.</p></div><div className="section-side">DATA RECORDED <strong>18 FEB 2026</strong><span>Pricing checked 15 Oct 2026</span></div></div>
         <div className="notice"><CircleHelp size={18} /><div><strong>Scope of this snapshot</strong><span>All published chat runs use one model. Of 60 attempts, 28 ended incomplete at the output limit. Quality was not evaluated, so no quality ranking or cross-model recommendation is shown. Current list prices estimate cost from recorded tokens; they are not historical bills.</span></div></div>
         <div className="explorer-card">
           <div className="toolbar"><div className="toolbar-title"><SlidersHorizontal size={18} /><strong>Refine results</strong><span>{visible.length} of {runs.length} runs</span></div><button className="link-button" type="button" onClick={() => { const empty = { provider: '', model: '', task: '', cap: '' }; setFilters(empty); writeUrl(empty) }}>Clear filters</button></div>
@@ -167,16 +186,18 @@ function App() {
       </section>
 
       <section className="section section-tinted" id="comparison"><div className="shell">
-        <div className="section-head"><div><SectionKicker>02 / SIDE-BY-SIDE</SectionKicker><h2>Same prompt. Different limits.</h2><p>Compare two or three recorded configurations for identical prompts. Response quality was not independently scored.</p></div><div className="section-side">CONTROLLED VARIABLE <strong>MAX OUTPUT TOKENS</strong><span>Other generation settings were not logged</span></div></div>
+        <div className="section-head"><div><SectionKicker>03 / ARCHIVE RESPONSE COMPARISON</SectionKicker><h2>Same prompt. Different limits.</h2><p>Compare two or three recorded configurations for identical prompts. Response quality was not independently scored.</p></div><div className="section-side">CONTROLLED VARIABLE <strong>MAX OUTPUT TOKENS</strong><span>Other generation settings were not logged</span></div></div>
         <div className="comparison-controls"><fieldset><legend>Choose configurations <span>(select 2–3)</span></legend><div className="chip-row">{runs.map(run => <label className={selected.includes(run.id) ? 'chip selected' : 'chip'} key={run.id}><input type="checkbox" checked={selected.includes(run.id)} onChange={() => toggleCompare(run.id)} disabled={!selected.includes(run.id) && selected.length >= 4} /><span>{run.maxOutputTokens} token limit</span></label>)}</div></fieldset><label className="prompt-select">Test prompt <span>{activePrompt + 1} of 20</span><select value={activePrompt} onChange={event => { const next = Number(event.target.value); setPromptIndex(next); writeUrl(filters, sort, selected, next) }}>{runs[0].items.map(item => <option key={item.index} value={item.index}>{String(item.index + 1).padStart(2, '0')} · {item.prompt}</option>)}</select></label></div>
         {comparisonValid ? <><div className="prompt-card"><span>IDENTICAL INPUT / PROMPT {String(activePrompt + 1).padStart(2, '0')}</span><p>{runs[0].items[activePrompt].prompt}</p></div><div className="response-grid" style={{ gridTemplateColumns: `repeat(${compared.length}, minmax(0, 1fr))` }}>{compared.map(run => { const item = run.items[activePrompt]; const cost = item.inputTokens !== null && item.outputTokens !== null ? estimateCost(item.inputTokens, item.outputTokens, pricing) : null; return <article className="response-card" key={run.id}><div className="response-top"><div><span className="response-index">0{run.maxOutputTokens === 50 ? 1 : run.maxOutputTokens === 100 ? 2 : 3}</span><h3>{run.maxOutputTokens} token limit</h3><small>{run.resolvedModel}</small></div><span className={item.error || item.status !== 'completed' ? 'status error' : 'status'}>{item.error || item.status !== 'completed' ? 'Incomplete' : 'Completed'}</span></div><div className="response-content"><span>RECORDED RESPONSE</span><p>{item.response || 'No response recorded.'}</p></div><div className="response-metrics"><div><span>INPUT / OUTPUT</span><strong>{item.inputTokens ?? '—'} / {item.outputTokens ?? '—'} <small>tokens</small></strong></div><div><span>LATENCY</span><strong>{formatMs(item.latencyMs)}</strong></div><div><span>EST. COST</span><strong>{formatMicroUSD(cost)}</strong></div><div><span>QUALITY</span><strong>Not scored</strong></div></div></article> })}</div><p className="compare-caveat"><CircleHelp size={16} />Responses were generated in separate sequential runs. Timing also reflects network and service conditions, and incomplete attempts are excluded from displayed latency medians. A lower output limit does not isolate a model speed effect. No quality conclusion can be drawn from these examples alone.</p></> : <div className="empty-state"><h3>Select at least two compatible runs.</h3><p>Only runs with the same model snapshot, task, dataset, and prompts can be compared here.</p></div>}
       </div></section>
 
-      <section className="section shell" id="calculator"><div className="section-head"><div><SectionKicker>03 / WORKLOAD CALCULATOR</SectionKicker><h2>Put a price on your workload.</h2><p>Explore a monthly estimate using published standard text token prices. No requests are sent.</p></div><div className="section-side">PRICE BASIS <strong>USD LIST PRICE</strong><span>Verified 15 Oct 2026</span></div></div>
+      <section className="section shell" id="calculator"><div className="section-head"><div><SectionKicker>04 / HOSTED COST CALCULATOR</SectionKicker><h2>Put a price on your workload.</h2><p>Explore a monthly estimate using published standard text token prices. No requests are sent.</p></div><div className="section-side">PRICE BASIS <strong>USD LIST PRICE</strong><span>Verified 15 Oct 2026</span></div></div>
         <div className="calculator-grid"><div className="calc-form"><div className="calc-top"><Coins size={20} /><strong>Workload inputs</strong></div><label>Model<select value="gpt-4o-mini" onChange={() => undefined}><option value="gpt-4o-mini">gpt-4o-mini (legacy model)</option></select></label><div className="request-label"><span>Request volume</span><div className="segmented" role="group" aria-label="Request frequency"><button type="button" className={frequency === 'day' ? 'active' : ''} onClick={() => setFrequency('day')}>Per day</button><button type="button" className={frequency === 'month' ? 'active' : ''} onClick={() => setFrequency('month')}>Per month</button></div></div><input aria-label={`Requests per ${frequency}`} type="number" min="0" max="1000000000" value={requests} onChange={event => setRequests(Math.min(1_000_000_000, Math.max(0, Number(event.target.value) || 0)))} /><div className="input-pair"><label>Avg. input tokens / request<input type="number" min="0" max="1000000" value={inputTokens} onChange={event => setInputTokens(Math.min(1_000_000_000, Math.max(0, Number(event.target.value) || 0)))} /></label><label>Avg. output tokens / request<input type="number" min="0" max="1000000" value={outputTokens} onChange={event => setOutputTokens(Math.min(1_000_000_000, Math.max(0, Number(event.target.value) || 0)))} /></label></div><p className="form-note">Uses 30 days per month for daily volume. Enter your expected uncached token use.</p></div><div className="calc-result"><span className="result-label">PROJECTED MONTHLY COST</span><strong className="result-total">{currency(costs.total)}</strong><span className="result-requests">for {monthlyRequests.toLocaleString()} requests / month</span><div className="cost-breakdown"><div><span>Input tokens <small>${pricing.inputPerMillion.toFixed(2)} / 1M</small></span><strong>{currency(costs.input)}</strong></div><div><span>Output tokens <small>${pricing.outputPerMillion.toFixed(2)} / 1M</small></span><strong>{currency(costs.output)}</strong></div><div className="total-row"><span>Total estimate</span><strong>{currency(costs.total)}</strong></div></div><p>List-price estimate, not a billing forecast. This model is marked deprecated by the provider. Excludes cached-token discounts, batch pricing, taxes, tools, retries, and provider-specific charges.</p><a href={pricing.sourceUrl} target="_blank" rel="noreferrer">View pricing source <ExternalLink size={14} /></a></div></div>
       </section>
 
-      <section className="section method-section" id="methodology"><div className="shell"><div className="section-head"><div><SectionKicker>04 / METHODOLOGY & ENGINEERING</SectionKicker><h2>What the numbers mean.</h2><p>Open methods and explicit limits make these results useful without pretending they answer more than they can.</p></div></div><div className="method-grid"><article><span className="method-number">01</span><h3>Experiment design</h3><p>Twenty fixed, general-purpose chat prompts were sent to the OpenAI Responses API for each of three output caps: 50, 100, and 200 tokens. The requested alias was <code>gpt-4o-mini</code>; responses report the resolved snapshot <code>gpt-4o-mini-2024-07-18</code>.</p></article><article><span className="method-number">02</span><h3>Measured and derived</h3><p>Input/output token counts and elapsed wall time were stored per request. Latency starts immediately before the SDK request and stops after its response, including network and provider processing. The explorer reports median completed-request latency (n=6, 10, or 16 depending on the cap). Cost is recalculated from those tokens using a current USD list price.</p></article><article><span className="method-number">03</span><h3>What is missing</h3><p>No chat quality rubric, human review, or judge score exists for these runs. Twenty-eight of 60 attempts ended incomplete because the output cap was reached. Time to first token, retries, temperature, prompt-template version, and original billing records were not captured. The 20 prompts are a small convenience sample, not a representative workload.</p></article><article><span className="method-number">04</span><h3>Build and release</h3><p>A read-only Python export validates archived SQLite rows and publishes only necessary fields. A static TypeScript/React frontend calculates summaries in the browser. The production build is prepared for Cloudflare Pages static hosting; Python benchmark jobs run separately and require explicit API credentials and cost approval.</p></article></div><div className="method-bottom"><div><ShieldCheck size={22} /><span><strong>Reproducible by inspection</strong><small>Run IDs, dataset hash, observations, formulas, and source code are available in the repository.</small></span></div><a href={`${repo}/blob/main/README.md`} target="_blank" rel="noreferrer">Read the technical documentation <ArrowUpRight size={17} /></a></div></div></section>
+      <EconomicsScenario pricing={pricing} />
+      <Methodology />
+      <section className="section method-section" id="archive-methodology"><div className="shell"><div className="section-head"><div><SectionKicker>07 / HISTORICAL ARCHIVE METHODS</SectionKicker><h2>What the original archive means.</h2><p>Open methods and explicit limits make these results useful without pretending they answer more than they can.</p></div></div><div className="method-grid"><article><span className="method-number">01</span><h3>Experiment design</h3><p>Twenty fixed, general-purpose chat prompts were sent to the OpenAI Responses API for each of three output caps: 50, 100, and 200 tokens. The requested alias was <code>gpt-4o-mini</code>; responses report the resolved snapshot <code>gpt-4o-mini-2024-07-18</code>.</p></article><article><span className="method-number">02</span><h3>Measured and derived</h3><p>Input/output token counts and elapsed wall time were stored per request. Latency starts immediately before the SDK request and stops after its response, including network and provider processing. The explorer reports median completed-request latency (n=6, 10, or 16 depending on the cap). Cost is recalculated from those tokens using a current USD list price.</p></article><article><span className="method-number">03</span><h3>What is missing</h3><p>No chat quality rubric, human review, or judge score exists for these runs. Twenty-eight of 60 attempts ended incomplete because the output cap was reached. Time to first token, retries, temperature, prompt-template version, and original billing records were not captured. The 20 prompts are a small convenience sample, not a representative workload.</p></article><article><span className="method-number">04</span><h3>Build and release</h3><p>A read-only Python export validates archived SQLite rows and publishes only necessary fields. A static TypeScript/React frontend calculates summaries in the browser. The production build is prepared for Cloudflare Pages static hosting; Python benchmark jobs run separately and require explicit API credentials and cost approval.</p></article></div><div className="method-bottom"><div><ShieldCheck size={22} /><span><strong>Reproducible by inspection</strong><small>Run IDs, dataset hash, observations, formulas, and source code are available in the repository.</small></span></div><a href={`${repo}/blob/main/README.md`} target="_blank" rel="noreferrer">Read the technical documentation <ArrowUpRight size={17} /></a></div></div></section>
     </main>
     <footer className="footer"><div className="shell footer-inner"><div><a className="brand" href="#top"><IconMark /><span>infernomics<span className="brand-dot">.</span></span></a><p>Evidence for better inference decisions.</p></div><div className="footer-links"><a href="#explorer">Explorer</a><a href="#methodology">Methodology</a><a href={repo} target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={13} /></a></div><span className="footer-note">Archived measurements · Current prices are estimates</span></div></footer>
 
